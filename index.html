@@ -1,0 +1,2627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hangul Bridge - Natural Korean for Heritage Learners</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&family=Noto+Serif+KR:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Pretendard', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+            serif: ['Noto Serif KR', 'serif'],
+          },
+          colors: {
+            dancheong: {
+              red: '#C23B22',
+              blue: '#0F4C81',
+              green: '#2A7B4C',
+              gold: '#D4AF37',
+              dark: '#1A1E24',
+              surface: '#F8FAFC'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #F1F5F9;
+      color: #1E293B;
+    }
+    .card-shadow {
+      box-shadow: 0 10px 25px -5px rgba(15, 76, 129, 0.08), 0 8px 10px -6px rgba(15, 76, 129, 0.04);
+    }
+    .perspective-1000 {
+      perspective: 1000px;
+    }
+    .flip-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      transform-style: preserve-3d;
+    }
+    .flipped .flip-card-inner {
+      transform: rotateY(180deg);
+    }
+    .flip-card-front, .flip-card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      border-radius: 1rem;
+    }
+    .flip-card-back {
+      transform: rotateY(180deg);
+    }
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-dancheong-blue selection:text-white">
+
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3 cursor-pointer" onclick="app.navToHome()">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-dancheong-blue to-blue-600 flex items-center justify-center text-white font-bold text-xl shadow-md">
+          한
+        </div>
+        <div>
+          <span class="font-extrabold text-lg tracking-tight text-slate-800">Hangul<span class="text-dancheong-blue">Bridge</span></span>
+          <span class="hidden sm:inline-block ml-2 px-2 py-0.5 text-xs font-semibold rounded-full bg-blue-50 text-dancheong-blue border border-blue-200">
+            Kyopo Heritage Edition
+          </span>
+        </div>
+      </div>
+
+      <!-- Header actions & 3-tier Vocab Vault Counter -->
+      <div class="flex items-center space-x-3">
+        <button onclick="app.toggleKnownDrawer()" class="flex items-center space-x-2 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium transition shadow-sm" title="View 3-Tier Vocabulary Vault">
+          <i class="fa-solid fa-layer-group text-dancheong-blue"></i>
+          <span class="hidden md:inline text-xs font-semibold">Vocab Vault:</span>
+          <span class="flex items-center space-x-1.5 text-xs font-mono font-bold">
+            <span class="text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200" title="Tier 1: Mastered">T1:<span id="t1CountBadge">0</span></span>
+            <span class="text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200" title="Tier 2: Review Queue">T2:<span id="t2CountBadge">0</span></span>
+            <span class="text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200" title="Tier 3: Learning">T3:<span id="t3CountBadge">0</span></span>
+          </span>
+        </button>
+
+        <button onclick="app.toggleProfileModal()" class="p-2 rounded-lg text-slate-600 hover:bg-slate-100 transition" title="Learner Profile & Goals">
+          <i class="fa-solid fa-user-gear text-lg"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 md:p-8">
+    
+    <!-- BANNER: Heritage Speaker Focus -->
+    <div id="heritageBanner" class="mb-6 p-4 rounded-2xl bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div class="space-y-1">
+        <div class="flex items-center space-x-2">
+          <span class="px-2 py-0.5 text-xs font-bold uppercase rounded bg-dancheong-red text-white">Seoul Re-entry Focus</span>
+          <h2 class="font-bold text-base sm:text-lg">Calibrated for Kyopo Heritage Speakers (1.5 / 2nd Generation)</h2>
+        </div>
+        <p class="text-xs sm:text-sm text-slate-300 max-w-3xl">
+          Designed specifically to tackle complex multi-clause sentence building, tricky particle nuances (<span class="text-amber-300 font-mono">은/는 vs 이/가, 에/에서, (으)로</span>), and bridging household Korean to authentic social & business dialogue.
+        </p>
+      </div>
+      <button onclick="document.getElementById('heritageBanner').style.display='none'" class="text-xs text-slate-400 hover:text-white underline self-end md:self-center">
+        Dismiss
+      </button>
+    </div>
+
+    <section id="topicSelectionView" class="space-y-6">
+
+      <!-- FRONT-PAGE QUICK REVIEW DECK (Tier 1 & Tier 2 Flashcard Practice) -->
+      <div class="bg-gradient-to-br from-indigo-50 via-white to-blue-50 border border-blue-200/80 rounded-2xl p-5 card-shadow space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="space-y-1">
+            <div class="flex items-center space-x-2">
+              <span class="w-7 h-7 rounded-lg bg-dancheong-blue text-white flex items-center justify-center text-xs font-bold shadow-sm">
+                <i class="fa-solid fa-bolt"></i>
+              </span>
+              <h2 class="font-extrabold text-slate-900 text-base sm:text-lg">Quick 10-Card Practice Deck</h2>
+              <span class="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-dancheong-blue font-semibold">
+                Tier 1 & Tier 2
+              </span>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-600">
+              Quickly cycle through 10 random words from your Mastered (T1: <strong class="text-emerald-700" id="deckT1Count">0</strong>) and Review Queue (T2: <strong class="text-amber-700" id="deckT2Count">0</strong>) vaults. Practice recall and reassign tiers anytime.
+            </p>
+          </div>
+          <button onclick="app.startQuickReviewDeck()" class="px-5 py-2.5 rounded-xl bg-dancheong-blue text-white text-xs sm:text-sm font-semibold hover:bg-blue-800 transition shadow-sm flex items-center justify-center space-x-2 whitespace-nowrap">
+            <i class="fa-solid fa-play text-xs"></i>
+            <span>Start 10-Card Practice</span>
+          </button>
+        </div>
+
+        <!-- Inline Quick Review Deck Viewport (Hidden until started) -->
+        <div id="quickReviewContainer" class="hidden pt-4 border-t border-blue-100/80 space-y-4">
+          <div class="flex items-center justify-between text-xs">
+            <div class="flex items-center space-x-2">
+              <span class="font-bold text-slate-700" id="quickCardCounter">Card 1 of 10</span>
+              <span id="quickCardTierBadge" class="text-xs font-semibold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">Tier 1</span>
+            </div>
+            <button onclick="app.closeQuickReviewDeck()" class="text-slate-400 hover:text-slate-700 text-xs font-medium">
+              <i class="fa-solid fa-xmark mr-1"></i> Close Quick Practice
+            </button>
+          </div>
+
+          <div class="max-w-xl mx-auto">
+            <div id="quickFlashcardEl" class="perspective-1000 h-[280px] sm:h-[300px] w-full cursor-pointer" onclick="app.toggleQuickCardFlip()">
+              <div class="flip-card-inner card-shadow rounded-2xl border border-slate-200">
+                <!-- Quick Card Front -->
+                <div class="flip-card-front bg-white p-6 flex flex-col justify-between border-2 border-slate-100">
+                  <div class="flex justify-between items-start">
+                    <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 text-slate-600" id="quickCardType">Word</span>
+                    <button onclick="event.stopPropagation(); app.speakKorean(app.currentQuickCard().korean)" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-blue-100 text-dancheong-blue flex items-center justify-center text-xs transition">
+                      <i class="fa-solid fa-volume-high"></i>
+                    </button>
+                  </div>
+                  <div class="my-auto text-center space-y-1">
+                    <h3 class="text-3xl font-extrabold text-slate-900" id="quickCardKorean">-</h3>
+                    <p class="text-slate-400 text-xs font-mono" id="quickCardHanjaOrNote"></p>
+                    <p class="text-base font-semibold text-slate-700 mt-2" id="quickCardEnglish">-</p>
+                  </div>
+                  <div class="text-center text-[11px] text-slate-400">
+                    <i class="fa-solid fa-hand-pointer mr-1"></i> Click to flip & see sample sentence
+                  </div>
+                </div>
+
+                <!-- Quick Card Back -->
+                <div class="flip-card-back bg-slate-900 text-white p-6 flex flex-col justify-between text-left">
+                  <div class="flex justify-between items-start border-b border-slate-800 pb-2">
+                    <h4 class="text-lg font-bold text-white" id="quickCardBackKorean">-</h4>
+                    <button onclick="event.stopPropagation(); app.speakKorean(app.currentQuickCard().korean)" class="w-7 h-7 rounded-full bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center text-xs transition">
+                      <i class="fa-solid fa-volume-high"></i>
+                    </button>
+                  </div>
+                  <div class="space-y-2 my-auto text-xs">
+                    <div class="bg-slate-800/90 p-2.5 rounded-xl border border-slate-700 space-y-1">
+                      <div class="text-[10px] uppercase font-bold text-emerald-400">Sample Sentence</div>
+                      <p class="text-slate-100 font-medium" id="quickCardSampleKorean">-</p>
+                      <p class="text-slate-400 text-[11px]" id="quickCardSampleEnglish">-</p>
+                    </div>
+                    <p class="text-[11px] text-amber-300" id="quickCardNuance"></p>
+                  </div>
+                  <div class="text-right text-[10px] text-slate-400">
+                    Click to flip back
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card Controls & Reassign Tiers -->
+            <div class="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div class="flex items-center space-x-2">
+                <button onclick="app.prevQuickCard()" class="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-medium shadow-sm transition">
+                  <i class="fa-solid fa-chevron-left mr-1"></i> Prev
+                </button>
+                <button onclick="app.nextQuickCard()" class="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-medium shadow-sm transition">
+                  Next <i class="fa-solid fa-chevron-right ml-1"></i>
+                </button>
+              </div>
+
+              <!-- Reassign Tier for this word -->
+              <div class="flex items-center space-x-1.5 text-xs">
+                <span class="text-slate-500 font-medium">Reassign:</span>
+                <button onclick="app.moveQuickCardTier(1)" class="px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 font-semibold" title="Move to Tier 1: 100% Mastered">
+                  T1 (Mastered)
+                </button>
+                <button onclick="app.moveQuickCardTier(2)" class="px-2.5 py-1 rounded-md bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200 font-semibold" title="Keep in Tier 2: Review Queue">
+                  T2 (Review)
+                </button>
+                <button onclick="app.moveQuickCardTier(3)" class="px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 font-semibold" title="Demote to Tier 3: Needs Study">
+                  T3 (Needs Study)
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Topics Selection Header -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-2">
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Choose a Lesson Topic</h1>
+          <p class="text-slate-500 text-sm mt-1">Pick an everyday, social, or corporate situation to generate a custom-tailored lesson.</p>
+        </div>
+        <!-- Add Custom Topic Button -->
+        <button onclick="app.promptCustomTopic()" class="inline-flex items-center justify-center space-x-2 px-4 py-2.5 rounded-xl bg-dancheong-blue text-white font-medium hover:bg-blue-800 transition shadow-sm">
+          <i class="fa-solid fa-plus text-sm"></i>
+          <span>Add Custom Topic</span>
+        </button>
+      </div>
+
+      <!-- Topics Grid -->
+      <div id="topicsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <!-- Injected via JavaScript -->
+      </div>
+    </section>
+
+    <section id="curationView" class="hidden space-y-6">
+      <!-- Top banner -->
+      <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-100 text-dancheong-blue" id="curationTopicBadge">Restaurant</span>
+            <span class="text-xs text-slate-400">Step 1 of 2: Curation & Inquiry</span>
+          </div>
+          <h2 class="text-2xl font-bold text-slate-800 mt-2" id="curationTopicTitle">Curating Your Vocabulary & Patterns</h2>
+          <p class="text-sm text-slate-500 mt-1">
+            Dismiss any words or patterns you already know. Use the sidebar on the right to ask Gemini any questions about usage and nuances.
+          </p>
+        </div>
+        <div class="flex items-center gap-3">
+          <button onclick="app.navToHome()" class="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-50 text-sm font-medium transition">
+            Change Topic
+          </button>
+          <button id="btnStartLesson" onclick="app.generateFullLesson()" class="px-6 py-2.5 rounded-xl bg-dancheong-red text-white font-semibold hover:bg-red-700 shadow-md transition flex items-center space-x-2">
+            <span>Build My Lesson</span>
+            <i class="fa-solid fa-arrow-right text-xs"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Loading State inside Curation -->
+      <div id="curationLoading" class="hidden py-16 text-center space-y-4 bg-white rounded-2xl border border-slate-200">
+        <div class="inline-block animate-spin text-dancheong-blue text-4xl">
+          <i class="fa-solid fa-circle-notch"></i>
+        </div>
+        <p class="text-slate-600 font-medium text-base" id="curationLoadingText">Generating curated vocabulary & pattern mix with Gemini...</p>
+        <p class="text-xs text-slate-400">Balancing 2 expressions, 3 verbs, 5 nouns, 3 adverbs/adjectives & 3 patterns</p>
+      </div>
+
+      <!-- 2-COLUMN LAYOUT: Content Pool (Left) + Gemini Linguistic Mentor Sidebar (Right) -->
+      <div id="curationContent" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- LEFT COLUMN: Words & Patterns Pool (8 cols) -->
+        <div class="lg:col-span-8 space-y-6">
+          
+          <!-- SECTION 1: VOCABULARY MIX -->
+          <div class="bg-white rounded-2xl p-6 border border-slate-200 card-shadow space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-3 gap-2">
+              <div>
+                <h3 class="text-lg font-bold text-slate-800 flex items-center space-x-2">
+                  <i class="fa-solid fa-layer-group text-dancheong-blue"></i>
+                  <span>Topic Vocabulary Pool (<span id="curatedVocabCount">13</span> Words/Expressions)</span>
+                </h3>
+                <p class="text-xs text-slate-500">2 Expressions • 3 Verbs • 5 Nouns • 3 Adverbs/Adjectives</p>
+              </div>
+              <span class="text-xs text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full">
+                Dismiss to T1 (100%) or T2 (Review) to swap
+              </span>
+            </div>
+
+            <!-- Vocabulary Category Columns -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="curationWordCols">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- SECTION 2: SENTENCE PATTERNS -->
+          <div class="bg-white rounded-2xl p-6 border border-slate-200 card-shadow space-y-4">
+            <div class="border-b border-slate-100 pb-3">
+              <h3 class="text-lg font-bold text-slate-800 flex items-center space-x-2">
+                <i class="fa-solid fa-diagram-project text-dancheong-green"></i>
+                <span>Sentence Patterns with Variations (3 Key Patterns)</span>
+              </h3>
+              <p class="text-xs text-slate-500">Master how to string clauses together naturally rather than short, fragmented thoughts.</p>
+            </div>
+
+            <div id="curationPatternsList" class="space-y-4">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN: Gemini Cultural & Linguistic Mentor Sidebar (4 cols) -->
+        <div class="lg:col-span-4 sticky top-20">
+          <div class="bg-white rounded-2xl border border-slate-200 card-shadow overflow-hidden flex flex-col h-[740px]">
+            
+            <!-- Sidebar Header -->
+            <div class="p-4 bg-gradient-to-r from-slate-900 to-indigo-950 text-white flex items-center justify-between">
+              <div class="flex items-center space-x-2.5">
+                <div class="w-8 h-8 rounded-lg bg-dancheong-gold/20 text-dancheong-gold border border-dancheong-gold/30 flex items-center justify-center font-bold text-sm">
+                  <i class="fa-solid fa-comments"></i>
+                </div>
+                <div>
+                  <h4 class="font-bold text-sm">Gemini Linguistic Mentor</h4>
+                  <p class="text-[11px] text-slate-300">Live Usage & Nuance Explanations</p>
+                </div>
+              </div>
+              <button onclick="app.resetMentorChat()" class="text-slate-400 hover:text-white text-xs p-1" title="Clear chat history">
+                <i class="fa-solid fa-rotate-right"></i>
+              </button>
+            </div>
+
+            <!-- Quick Suggestions Chips -->
+            <div class="p-3 bg-slate-50 border-b border-slate-100 flex flex-wrap gap-1.5 text-[11px]">
+              <button onclick="app.askMentorQuick('What are the trickiest particle traps (은/는 vs 이/가 or 에 vs 에서) for this topic?')" class="px-2.5 py-1 rounded-full bg-white hover:bg-blue-50 text-slate-700 hover:text-dancheong-blue border border-slate-200 transition">
+                Particle Traps?
+              </button>
+              <button onclick="app.askMentorQuick('How would I express these words in business Korean vs casual dinner with friends?')" class="px-2.5 py-1 rounded-full bg-white hover:bg-blue-50 text-slate-700 hover:text-dancheong-blue border border-slate-200 transition">
+                Business vs Casual?
+              </button>
+              <button onclick="app.askMentorQuick('What are some common mistakes Kyopo speakers make when talking about this topic?')" class="px-2.5 py-1 rounded-full bg-white hover:bg-blue-50 text-slate-700 hover:text-dancheong-blue border border-slate-200 transition">
+                Kyopo Pitfalls?
+              </button>
+            </div>
+
+            <!-- Chat Message History Container -->
+            <div id="mentorChatHistory" class="flex-1 p-4 overflow-y-auto space-y-3 text-xs">
+              <!-- Injected by JS -->
+            </div>
+
+            <!-- Chat Input Footer -->
+            <div class="p-3 bg-white border-t border-slate-100 space-y-2">
+              <div class="flex items-center space-x-2">
+                <input 
+                  type="text" 
+                  id="mentorChatInput" 
+                  placeholder="Ask about a word, particle, or nuanced phrasing..." 
+                  class="flex-1 px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-dancheong-blue focus:border-transparent text-slate-800"
+                  onkeydown="if(event.key === 'Enter') app.sendMentorMessage()"
+                >
+                <button onclick="app.sendMentorMessage()" id="btnSendMentor" class="w-9 h-9 rounded-xl bg-dancheong-blue hover:bg-blue-800 text-white flex items-center justify-center transition shadow-sm">
+                  <i class="fa-solid fa-paper-plane text-xs"></i>
+                </button>
+              </div>
+              <p class="text-[10px] text-slate-400 text-center">
+                Click <span class="font-semibold text-dancheong-blue">Ask AI</span> on any card to automatically inspect that word.
+              </p>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section id="lessonView" class="hidden space-y-6">
+      
+      <!-- Lesson Stepper Bar -->
+      <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+          <div class="flex items-center space-x-2">
+            <span class="font-bold text-slate-800 text-base" id="activeLessonTopicTitle">Lesson</span>
+            <span class="text-xs px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600" id="stageBadge">Stage 1 of 5</span>
+          </div>
+          <button onclick="app.exitLessonToCuration()" class="text-xs text-slate-500 hover:text-slate-800 font-medium">
+            <i class="fa-solid fa-arrow-left mr-1"></i> Return to Word Mix
+          </button>
+        </div>
+
+        <!-- Navigation Tabs for the 5 Stages -->
+        <div class="grid grid-cols-5 gap-1.5 sm:gap-2">
+          <button id="tabStage1" onclick="app.switchStage(1)" class="py-2 px-1 text-center rounded-lg text-xs font-semibold transition border border-transparent bg-dancheong-blue text-white shadow-sm">
+            <span class="block">1. Vocab</span>
+            <span class="hidden sm:inline text-[10px] opacity-80">Flashcards</span>
+          </button>
+          <button id="tabStage2" onclick="app.switchStage(2)" class="py-2 px-1 text-center rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 transition">
+            <span class="block">2. Quiz</span>
+            <span class="hidden sm:inline text-[10px] opacity-80">Particles & Meaning</span>
+          </button>
+          <button id="tabStage3" onclick="app.switchStage(3)" class="py-2 px-1 text-center rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 transition">
+            <span class="block">3. Patterns</span>
+            <span class="hidden sm:inline text-[10px] opacity-80">Sentence Expansion</span>
+          </button>
+          <button id="tabStage4" onclick="app.switchStage(4)" class="py-2 px-1 text-center rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 transition">
+            <span class="block">4. Dialogue</span>
+            <span class="hidden sm:inline text-[10px] opacity-80">Reading & Audio</span>
+          </button>
+          <button id="tabStage5" onclick="app.switchStage(5)" class="py-2 px-1 text-center rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 transition">
+            <span class="block">5. Prompts</span>
+            <span class="hidden sm:inline text-[10px] opacity-80">AI Real Situations</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- STAGE 1: VOCABULARY LESSON (Flashcards) -->
+      <div id="stage1Container" class="space-y-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-xl font-bold text-slate-800">Vocabulary Flashcards & Nuance Guides</h3>
+            <p class="text-xs sm:text-sm text-slate-500">Tap cards to flip. Study verb tenses, natural collocations, and particle watch-outs.</p>
+          </div>
+          <div class="text-xs font-bold text-slate-500" id="flashcardCounter">Card 1 of 10</div>
+        </div>
+
+        <!-- Flashcard Viewport -->
+        <div class="max-w-2xl mx-auto">
+          <div id="flashcardElement" class="perspective-1000 h-[380px] sm:h-[420px] w-full cursor-pointer" onclick="app.toggleCardFlip()">
+            <div class="flip-card-inner card-shadow rounded-2xl border border-slate-200">
+              
+              <!-- Card Front -->
+              <div class="flip-card-front bg-white p-6 sm:p-8 flex flex-col justify-between border-2 border-slate-100">
+                <div class="flex justify-between items-start">
+                  <span class="px-2.5 py-1 rounded-md text-xs font-semibold bg-blue-50 text-dancheong-blue border border-blue-100" id="cardType">Verb</span>
+                  <button onclick="event.stopPropagation(); app.speakKorean(app.currentFlashcard().korean)" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-blue-100 text-dancheong-blue flex items-center justify-center transition" title="Listen to pronunciation">
+                    <i class="fa-solid fa-volume-high"></i>
+                  </button>
+                </div>
+
+                <div class="my-auto text-center space-y-2">
+                  <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight" id="cardKorean">예약하다</h2>
+                  <p class="text-slate-400 text-sm font-mono" id="cardHanjaOrNote">[예약 - 豫約]</p>
+                  <p class="text-lg font-semibold text-slate-700 mt-2" id="cardEnglish">to reserve / make a reservation</p>
+                </div>
+
+                <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
+                  <span><i class="fa-solid fa-hand-pointer mr-1"></i> Click anywhere to reveal conjugations & nuance</span>
+                  <span class="font-medium text-dancheong-blue">Front side</span>
+                </div>
+              </div>
+
+              <!-- Card Back -->
+              <div class="flip-card-back bg-slate-900 text-white p-6 sm:p-8 flex flex-col justify-between overflow-y-auto text-left">
+                <div class="flex justify-between items-start border-b border-slate-800 pb-2">
+                  <div>
+                    <span class="text-xs uppercase tracking-wider text-amber-400 font-bold" id="cardBackType">Verb Usage & Tenses</span>
+                    <h3 class="text-xl font-bold text-white mt-0.5" id="cardBackKorean">예약하다</h3>
+                  </div>
+                  <button onclick="event.stopPropagation(); app.speakKorean(app.currentFlashcard().korean)" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center transition">
+                    <i class="fa-solid fa-volume-high text-xs"></i>
+                  </button>
+                </div>
+
+                <!-- Verb Tenses / Usage Details -->
+                <div class="my-3 space-y-3 text-xs sm:text-sm">
+                  <!-- Verb Tenses Box -->
+                  <div id="cardVerbTensesBox" class="bg-slate-800/80 p-3 rounded-xl border border-slate-700/60 space-y-1">
+                    <div class="text-[11px] font-bold text-blue-300 uppercase tracking-wide">Common Conversational Tenses</div>
+                    <div class="grid grid-cols-2 gap-2 text-xs" id="cardTensesGrid">
+                      <!-- Populated via JS -->
+                    </div>
+                  </div>
+
+                  <!-- Sentence Example -->
+                  <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700/60 space-y-1">
+                    <div class="text-[11px] font-bold text-emerald-400 uppercase tracking-wide flex items-center justify-between">
+                      <span>Example Sentence</span>
+                      <button onclick="event.stopPropagation(); app.speakKorean(app.currentFlashcard().sampleKorean)" class="hover:text-white">
+                        <i class="fa-solid fa-volume-low text-xs"></i>
+                      </button>
+                    </div>
+                    <p class="text-slate-100 font-medium" id="cardSampleKorean">금요일 저녁 7시에 4명으로 예약하고 싶은데요.</p>
+                    <p class="text-slate-400 text-xs" id="cardSampleEnglish">I would like to make a reservation for 4 people on Friday at 7 PM.</p>
+                  </div>
+
+                  <!-- Heritage Speaker Particle Tip -->
+                  <div class="bg-amber-950/40 p-3 rounded-xl border border-amber-600/30 text-xs space-y-1">
+                    <div class="text-amber-300 font-bold flex items-center space-x-1">
+                      <i class="fa-solid fa-triangle-exclamation text-[10px]"></i>
+                      <span>Kyopo Particle Watch-out:</span>
+                    </div>
+                    <p class="text-amber-100" id="cardParticleTip">Pay attention to the particle ~으로 when specifying headcount or method.</p>
+                  </div>
+                </div>
+
+                <div class="text-right text-[11px] text-slate-400">
+                  Tap to flip back
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Flashcard Navigation Controls -->
+          <div class="mt-6 flex items-center justify-between">
+            <button onclick="app.prevCard()" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 text-sm font-medium shadow-sm transition">
+              <i class="fa-solid fa-chevron-left mr-1"></i> Previous
+            </button>
+            <button onclick="app.speakKorean(app.currentFlashcard().korean)" class="px-3 py-2 rounded-xl bg-blue-50 text-dancheong-blue hover:bg-blue-100 text-xs font-semibold transition flex items-center space-x-1">
+              <i class="fa-solid fa-volume-high"></i>
+              <span>Listen Word</span>
+            </button>
+            <button onclick="app.nextCard()" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 text-sm font-medium shadow-sm transition">
+              Next <i class="fa-solid fa-chevron-right ml-1"></i>
+            </button>
+          </div>
+
+          <!-- Complete Vocab and Go to Quiz Button -->
+          <div class="mt-8 text-center">
+            <button onclick="app.switchStage(2)" class="px-6 py-3 rounded-xl bg-dancheong-blue text-white font-semibold hover:bg-blue-900 transition shadow-md inline-flex items-center space-x-2">
+              <span>Ready for Vocabulary & Particle Quiz</span>
+              <i class="fa-solid fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STAGE 2: VOCABULARY QUIZ (Meaning + Particle Cloze) -->
+      <div id="stage2Container" class="hidden space-y-6">
+        <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+          <div>
+            <h3 class="text-xl font-bold text-slate-800">Vocabulary & Particle Quiz</h3>
+            <p class="text-xs sm:text-sm text-slate-500">Test vocabulary recall and identify correct conversational particles.</p>
+          </div>
+          <div class="text-sm font-bold text-slate-600" id="quizProgressText">Question 1 of 5</div>
+        </div>
+
+        <div class="max-w-2xl mx-auto bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 card-shadow space-y-6">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold px-2.5 py-1 rounded bg-indigo-50 text-indigo-700 border border-indigo-100 uppercase" id="quizTypeBadge">Particle Cloze</span>
+            <button id="btnQuizAudio" class="text-slate-400 hover:text-dancheong-blue transition">
+              <i class="fa-solid fa-volume-high"></i>
+            </button>
+          </div>
+
+          <!-- Question Prompt -->
+          <div class="space-y-2">
+            <p class="text-sm font-semibold text-slate-400 uppercase tracking-wide" id="quizQuestionContext">Fill in the blank with the natural particle</p>
+            <h4 class="text-2xl font-extrabold text-slate-800" id="quizQuestionText">식당[ &nbsp;?&nbsp; ] 도착하면 연락주세요.</h4>
+            <p class="text-slate-600 text-sm italic" id="quizQuestionTranslation">"Please call me when you arrive at the restaurant."</p>
+          </div>
+
+          <!-- Options Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="quizOptionsContainer">
+            <!-- Rendered by JS -->
+          </div>
+
+          <!-- Feedback Box -->
+          <div id="quizFeedbackBox" class="hidden p-4 rounded-xl border text-sm space-y-2">
+            <div class="flex items-center space-x-2 font-bold" id="quizFeedbackStatus">
+              <i class="fa-solid fa-circle-check"></i>
+              <span>Correct!</span>
+            </div>
+            <p id="quizFeedbackExplanation" class="text-xs sm:text-sm leading-relaxed">Explanation text goes here.</p>
+          </div>
+
+          <!-- Next Button -->
+          <div class="flex justify-end pt-2">
+            <button id="btnQuizNext" onclick="app.nextQuizQuestion()" class="hidden px-5 py-2.5 rounded-xl bg-dancheong-blue text-white font-semibold hover:bg-blue-800 transition">
+              Next Question <i class="fa-solid fa-arrow-right ml-1"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STAGE 3: SENTENCE PATTERN PRACTICE -->
+      <div id="stage3Container" class="hidden space-y-6">
+        <div>
+          <h3 class="text-xl font-bold text-slate-800">Sentence Expansion & Pattern Workshop</h3>
+          <p class="text-xs sm:text-sm text-slate-500">
+            Heritage learners often speak in short fragments. Practice connecting two distinct clauses into one smooth, natural thought.
+          </p>
+        </div>
+
+        <div class="max-w-3xl mx-auto space-y-6" id="patternExercisesContainer">
+          <!-- Rendered via JS -->
+        </div>
+
+        <div class="text-center pt-4">
+          <button onclick="app.switchStage(4)" class="px-6 py-3 rounded-xl bg-dancheong-blue text-white font-semibold hover:bg-blue-900 transition shadow-md inline-flex items-center space-x-2">
+            <span>Proceed to Reading Dialogue</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- STAGE 4: CONVERSATIONAL DIALOGUE -->
+      <div id="stage4Container" class="hidden space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-3">
+          <div>
+            <h3 class="text-xl font-bold text-slate-800" id="dialogueScenarioTitle">Conversational Dialogue: At the Restaurant</h3>
+            <p class="text-xs sm:text-sm text-slate-500">Listen, shadow out loud, and note natural spoken speech contractions and polite honorifics.</p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button onclick="app.playEntireDialogue()" class="px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 text-xs font-semibold flex items-center space-x-1.5">
+              <i class="fa-solid fa-play text-[10px]"></i>
+              <span>Play All</span>
+            </button>
+            <button onclick="app.toggleEnglishSubtitles()" id="btnToggleSubtitles" class="px-3 py-1.5 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 text-xs font-medium">
+              Toggle English
+            </button>
+          </div>
+        </div>
+
+        <!-- Dialogue Script Chat Layout -->
+        <div class="max-w-2xl mx-auto bg-white rounded-2xl p-4 sm:p-6 border border-slate-200 card-shadow space-y-4" id="dialogueLinesContainer">
+          <!-- Populated dynamically -->
+        </div>
+
+        <div class="text-center pt-4">
+          <button onclick="app.switchStage(5)" class="px-6 py-3 rounded-xl bg-dancheong-red text-white font-semibold hover:bg-red-700 transition shadow-md inline-flex items-center space-x-2">
+            <span>Final Stage: Real-Life Situational Prompt</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- STAGE 5: SITUATIONAL PROMPTS (AI-Graded Response in Korean) -->
+      <div id="stage5Container" class="hidden space-y-6">
+        <div>
+          <h3 class="text-xl font-bold text-slate-800">Situational Prompt: Respond in Korean</h3>
+          <p class="text-xs sm:text-sm text-slate-500">
+            Read the prompt and respond in natural Korean. Gemini will analyze your syntax, particle correctness, and suggest both casual and business variations.
+          </p>
+        </div>
+
+        <div class="max-w-3xl mx-auto bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 card-shadow space-y-6">
+          
+          <!-- Scenario Prompt Card -->
+          <div class="p-4 rounded-xl bg-blue-50 border border-blue-200 space-y-2">
+            <div class="flex items-center space-x-2 text-dancheong-blue font-bold text-xs uppercase tracking-wider">
+              <i class="fa-solid fa-location-dot"></i>
+              <span>Scenario Situation</span>
+            </div>
+            <p class="text-slate-800 text-base font-semibold" id="situationPromptText">
+              You are hosting an important dinner at a traditional Korean restaurant in Gwanghwamun. Call the restaurant to reserve a private quiet room (룸) for 6 people this Thursday at 6:30 PM, and mention that one person has a shellfish allergy.
+            </p>
+            <div class="text-xs text-slate-500">
+              <strong class="text-slate-700">Goal:</strong> Use a multi-clause sentence connecting time, headcount, and allergy request smoothly.
+            </div>
+          </div>
+
+          <!-- User Korean Input -->
+          <div class="space-y-2">
+            <label class="block text-xs font-bold text-slate-700 uppercase">
+              Your Response in Korean:
+            </label>
+            <textarea id="userSituationalInput" rows="4" placeholder="예: 이번 주 목요일 저녁 6시 반에 6명으로 룸 예약하고 싶은데요, 일행 중에 갑각류 알레르기가 있는 사람이 있어서요..." class="w-full p-4 rounded-xl border border-slate-300 focus:ring-2 focus:ring-dancheong-blue focus:outline-none text-slate-900 text-sm font-medium leading-relaxed"></textarea>
+            
+            <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+              <span class="text-xs text-slate-400">Tip: Write as naturally as you can; focus on connecting clauses.</span>
+              <div class="flex items-center space-x-2">
+                <button onclick="app.insertKoreanChar('~는데')" class="text-xs px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700">+ ~는데</button>
+                <button onclick="app.insertKoreanChar('~거든')" class="text-xs px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700">+ ~거든</button>
+                <button onclick="app.insertKoreanChar('~(으)려고')" class="text-xs px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700">+ ~(으)려고</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="flex justify-end">
+            <button id="btnSubmitSituation" onclick="app.submitSituationalResponse()" class="px-6 py-2.5 rounded-xl bg-dancheong-red text-white font-semibold hover:bg-red-700 transition flex items-center space-x-2 shadow-md">
+              <i class="fa-solid fa-wand-magic-sparkles"></i>
+              <span>Evaluate My Korean</span>
+            </button>
+          </div>
+
+          <!-- Evaluation Feedback Loading -->
+          <div id="evalLoading" class="hidden p-6 text-center space-y-2 bg-slate-50 rounded-xl border border-slate-200">
+            <div class="inline-block animate-spin text-dancheong-blue text-2xl">
+              <i class="fa-solid fa-circle-notch"></i>
+            </div>
+            <p class="text-xs font-medium text-slate-600">Analyzing grammatical nuance, particles, and Kyopo naturalness...</p>
+          </div>
+
+          <!-- Evaluation Results -->
+          <div id="evalResultsBox" class="hidden space-y-4 pt-4 border-t border-slate-200">
+            <!-- Results populated via JS -->
+          </div>
+
+        </div>
+
+        <!-- Lesson Completion Footer -->
+        <div class="text-center pt-8">
+          <button onclick="app.navToHome()" class="px-6 py-3 rounded-xl bg-slate-800 text-white font-semibold hover:bg-slate-900 transition shadow">
+            <i class="fa-solid fa-house mr-2"></i> Choose Another Topic
+          </button>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <div id="knownDrawer" class="fixed inset-0 z-50 hidden" aria-hidden="true">
+    <div id="knownDrawerBackdrop" class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm opacity-0 transition-opacity duration-300" onclick="app.toggleKnownDrawer(false)"></div>
+    <div class="absolute right-0 top-0 bottom-0 w-full max-w-lg bg-white shadow-2xl p-6 flex flex-col transform translate-x-full transition-transform duration-300 ease-in-out z-10" id="knownDrawerPanel">
+      
+      <!-- Drawer Header -->
+      <div class="flex items-center justify-between border-b border-slate-200 pb-4">
+        <div>
+          <h3 class="text-lg font-bold text-slate-800 flex items-center space-x-2">
+            <i class="fa-solid fa-layer-group text-dancheong-blue"></i>
+            <span>3-Tier Vocabulary Vault</span>
+          </h3>
+          <p class="text-xs text-slate-500">Manage mastered words, your review queue, and active lesson targets.</p>
+        </div>
+        <button onclick="app.toggleKnownDrawer(false)" class="p-1 rounded-md text-slate-400 hover:text-slate-700">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Tab Filters for Tiers -->
+      <div class="grid grid-cols-4 gap-1 p-1 bg-slate-100 rounded-xl mt-4 text-xs font-semibold text-slate-600">
+        <button id="vaultTabAll" onclick="app.setVaultTab('all')" class="py-1.5 rounded-lg bg-white text-slate-900 shadow-sm transition">
+          All (<span id="vaultTabAllCount">0</span>)
+        </button>
+        <button id="vaultTabTier1" onclick="app.setVaultTab('tier1')" class="py-1.5 rounded-lg hover:bg-white/60 transition">
+          T1 (<span id="vaultTabT1Count">0</span>)
+        </button>
+        <button id="vaultTabTier2" onclick="app.setVaultTab('tier2')" class="py-1.5 rounded-lg hover:bg-white/60 transition">
+          T2 (<span id="vaultTabT2Count">0</span>)
+        </button>
+        <button id="vaultTabTier3" onclick="app.setVaultTab('tier3')" class="py-1.5 rounded-lg hover:bg-white/60 transition">
+          T3 (<span id="vaultTabT3Count">0</span>)
+        </button>
+      </div>
+
+      <!-- Search & Add Word Bar -->
+      <div class="mt-3 flex items-center space-x-2">
+        <div class="relative flex-1">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-slate-400"></i>
+          <input type="text" id="vaultSearchInput" oninput="app.renderVaultList()" placeholder="Search Korean or English..." class="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-dancheong-blue">
+        </div>
+        <button onclick="app.promptAddCustomVaultWord()" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition" title="Add a custom word">
+          <i class="fa-solid fa-plus"></i> Add
+        </button>
+      </div>
+
+      <!-- Words List Container -->
+      <div class="flex-1 overflow-y-auto py-3 space-y-2.5" id="knownListContainer">
+        <!-- Injected by JS -->
+      </div>
+
+      <!-- Drawer Footer -->
+      <div class="border-t border-slate-200 pt-3 flex justify-between items-center text-xs text-slate-500">
+        <span>Stored in active session</span>
+        <button onclick="app.clearKnownBank()" class="text-red-600 hover:underline">Reset to Default</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="profileModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm hidden">
+    <div class="bg-white w-full max-w-lg rounded-2xl p-6 shadow-2xl space-y-4 border border-slate-200">
+      <div class="flex justify-between items-start border-b border-slate-100 pb-3">
+        <div>
+          <h3 class="font-bold text-slate-900 text-lg">Learner Profile & Calibration</h3>
+          <p class="text-xs text-slate-500">How the system tunes content to your exact linguistic background.</p>
+        </div>
+        <button onclick="app.toggleProfileModal()" class="text-slate-400 hover:text-slate-600">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs sm:text-sm text-slate-600">
+        <div class="p-3 rounded-xl bg-blue-50 border border-blue-100 space-y-1">
+          <div class="font-bold text-dancheong-blue text-xs uppercase">Background Summary</div>
+          <p class="text-slate-700">53 y/o Korean-American • Born in Seoul, US age 3-47, Seoul resident since 2020 • Rutgers Korean 101/102 background.</p>
+        </div>
+
+        <div class="space-y-1">
+          <strong class="text-slate-800">Target Weaknesses Handled in Every Lesson:</strong>
+          <ul class="list-disc pl-5 space-y-1 text-slate-600">
+            <li><strong>Clause Complexification:</strong> Transforming basic subject-object-verb clauses into connected thoughts with proper conjunctions (~(으)면서, ~(으)ㄴ데, ~(으)므로).</li>
+            <li><strong>Particle Accuracy:</strong> Precision between subjective <span class="font-mono text-dancheong-blue">이/가</span>, topic <span class="font-mono text-dancheong-blue">은/는</span>, dynamic location <span class="font-mono text-dancheong-blue">에서</span> vs static <span class="font-mono text-dancheong-blue">에</span>, and tool/direction <span class="font-mono text-dancheong-blue">(으)로</span>.</li>
+            <li><strong>Tone Switching:</strong> Seamless transitions from informal polite (해요체) to formal business Korean (하십시오체) and subtle honorific markers (<span class="font-mono text-dancheong-blue">시</span>).</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="flex justify-end pt-2">
+        <button onclick="app.toggleProfileModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-white text-xs font-semibold hover:bg-slate-900">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 pointer-events-none space-y-2"></div>
+
+  <script>
+    const KYOPO_SYSTEM_PROMPT = `You are a master bilingual Korean linguist and cultural mentor specializing in Korean-Americans (재외동포 / Kyopo).
+Your student profile:
+- 53 years old, born in Seoul, raised in US from age 3 to 47, relocated back to Seoul in 2020.
+- Has spoken household Korean from childhood, took college Korean 101/102 at Rutgers.
+- Communicates decently in daily life, but lacks:
+  1. Ability to string together complex thoughts into multi-clause, natural sentences (both conversational and business Korean).
+  2. Nuanced vocabulary across specific life situations (sports coaching, reservations, dating, pop culture, dining, politics, work).
+  3. Proper particle usage (은/는 vs 이/가, 에 vs 에서, 에게 vs 한테, (으)로, etc.).
+Always provide authentic, contemporary Seoul Korean, highlighting particle nuances and natural phrasing over mechanical textbook translations.`;
+
+    const PRESET_TOPICS = [
+      {
+        id: 'restaurant',
+        icon: 'fa-utensils',
+        color: 'text-amber-600 bg-amber-50',
+        title: 'Dining Out & Restaurant Nuances',
+        desc: 'Ordering, custom modifications, booking a quiet room (룸), split bills, and dining etiquette.',
+        sampleWords: ['예약하다', '주문하다', '덜 맵게', '추천']
+      },
+      {
+        id: 'business_meeting',
+        icon: 'fa-briefcase',
+        color: 'text-blue-600 bg-blue-50',
+        title: 'Business Korean & Meetings',
+        desc: 'Addressing colleagues, polite declining, presenting opinions, honorifics (하십시오체 vs 해요체).',
+        sampleWords: ['검토하다', '일정', '의견', '추진하다']
+      },
+      {
+        id: 'sports_coaching',
+        icon: 'fa-futbol',
+        color: 'text-emerald-600 bg-emerald-50',
+        title: 'Coaching Sports & Teamwork',
+        desc: 'Giving clear drills, encouraging teammates, discussing match strategy and physical conditioning.',
+        sampleWords: ['체력', '전술', '수비', '격려하다']
+      },
+      {
+        id: 'pop_culture',
+        icon: 'fa-tv',
+        color: 'text-purple-600 bg-purple-50',
+        title: 'Pop Culture, K-Dramas & Music',
+        desc: 'Analyzing plot twists, sharing recommendations, trending buzzwords, and cultural memes.',
+        sampleWords: ['정주행', '반전', '캐릭터', 'OST']
+      },
+      {
+        id: 'time_dates',
+        icon: 'fa-clock',
+        color: 'text-rose-600 bg-rose-50',
+        title: 'Nuanced Ways to Discuss Time & Dates',
+        desc: 'Past deadlines, approximate schedules, scheduling around public holidays and lunar calendars.',
+        sampleWords: ['미루다', '당기다', '마감일', '틈틈이']
+      },
+      {
+        id: 'dating_social',
+        icon: 'fa-heart',
+        color: 'text-pink-600 bg-pink-50',
+        title: 'Dating, Flirting & Social Life',
+        desc: 'Expressing feelings subtly, arranging casual meetups, navigating personal boundaries and chemistry.',
+        sampleWords: ['설레다', '취향', '통하다', '부담스럽다']
+      },
+      {
+        id: 'travel_holidays',
+        icon: 'fa-plane-departure',
+        color: 'text-cyan-600 bg-cyan-50',
+        title: 'Travel & Holiday Plans (명절/휴가)',
+        desc: 'Chuseok travel, booking KTX tickets, domestic getaway hidden gems, and airport customs.',
+        sampleWords: ['귀성길', '숙소', '여유롭다', '일정']
+      },
+      {
+        id: 'politics_society',
+        icon: 'fa-landmark',
+        color: 'text-indigo-600 bg-indigo-50',
+        title: 'Politics, Current Affairs & Society',
+        desc: 'Expressing balanced viewpoints on public policy, real estate, inflation, and civic discussions.',
+        sampleWords: ['부동산', '정책', '영향', '우려되다']
+      }
+    ];
+
+    // Main App Object
+    const app = {
+      topics: [...PRESET_TOPICS],
+      currentTopic: null,
+      
+      // 3-Tier Vocabulary Storage (Map keyed by Korean word)
+      vocabVault: new Map(),
+      dismissedPatterns: new Set(),
+      activeVaultTab: 'all',
+
+      // Front-page Quick Practice Deck (10 cards from T1 and T2)
+      quickDeck: [],
+      currentQuickIndex: 0,
+      isQuickFlipped: false,
+
+      // Curation & Lesson State
+      curatedVocab: [],
+      curatedPatterns: [],
+      activeStage: 1,
+      currentCardIndex: 0,
+      isCardFlipped: false,
+      quizData: [],
+      currentQuizIndex: 0,
+      quizScore: 0,
+      patternExercises: [],
+      dialogueLines: [],
+      showSubtitles: true,
+      currentSituationPrompt: "",
+
+      // Mentor Chat State
+      mentorChatMessages: [],
+      
+      init() {
+        this.initDefaultVault();
+        this.renderTopics();
+        this.updateVaultCounts();
+      },
+
+      renderTopics() {
+        const container = document.getElementById('topicsGrid');
+        if (!container) return;
+        container.innerHTML = this.topics.map(t => `
+          <div onclick="app.selectTopic('${t.id}')" class="p-6 rounded-2xl bg-white border border-slate-200 card-shadow hover:border-dancheong-blue hover:shadow-lg transition cursor-pointer flex flex-col justify-between space-y-4 group">
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <div class="w-12 h-12 rounded-xl flex items-center justify-center text-xl ${t.color}">
+                  <i class="fa-solid ${t.icon}"></i>
+                </div>
+                <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 group-hover:bg-blue-50 group-hover:text-dancheong-blue transition">
+                  Start Lesson <i class="fa-solid fa-arrow-right ml-1"></i>
+                </span>
+              </div>
+              <h3 class="text-lg font-bold text-slate-900 group-hover:text-dancheong-blue transition">${t.title}</h3>
+              <p class="text-xs text-slate-500 leading-relaxed">${t.desc}</p>
+            </div>
+            <div class="pt-3 border-t border-slate-100 flex flex-wrap gap-1.5">
+              ${(t.sampleWords || []).map(w => `<span class="text-[11px] px-2 py-0.5 rounded-md bg-slate-50 text-slate-600 border border-slate-200">${w}</span>`).join('')}
+            </div>
+          </div>
+        `).join('');
+      },
+
+      selectTopic(topicId) {
+        const topic = this.topics.find(t => t.id === topicId);
+        if (!topic) return;
+        this.currentTopic = topic;
+        document.getElementById('topicSelectionView').classList.add('hidden');
+        document.getElementById('curationView').classList.remove('hidden');
+        document.getElementById('lessonView').classList.add('hidden');
+        document.getElementById('curationTopicTitle').textContent = `Curating for: ${topic.title}`;
+        document.getElementById('curationTopicBadge').textContent = topic.title.split(' ')[0] || 'Topic';
+        
+        // Initialize Mentor Chat for this topic
+        this.initMentorChat(topic);
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        this.fetchCuratedMix(topic);
+      },
+
+      promptCustomTopic() {
+        const title = prompt("Enter a custom topic (e.g. 'Visiting the Hospital & Describing Symptoms', 'Negotiating an Apartment Lease'):");
+        if (!title || !title.trim()) return;
+        const desc = prompt("Describe the situation or focus (optional):") || "Authentic conversational phrasing and relevant vocabulary.";
+        const newTopic = {
+          id: 'custom_' + Date.now(),
+          icon: 'fa-lightbulb',
+          color: 'text-dancheong-red bg-rose-50',
+          title: title.trim(),
+          desc: desc.trim(),
+          sampleWords: ['어휘', '자연스러운 표현', '뉘앙스']
+        };
+        this.topics.unshift(newTopic);
+        this.renderTopics();
+        this.selectTopic(newTopic.id);
+      },
+
+      navToHome() {
+        document.getElementById('topicSelectionView').classList.remove('hidden');
+        document.getElementById('curationView').classList.add('hidden');
+        document.getElementById('lessonView').classList.add('hidden');
+        this.renderTopics();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      },
+
+      async callGemini(prompt, isJson = false) {
+        const apiKey = "";
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+        const body = {
+          contents: [{ parts: [{ text: prompt }] }],
+          systemInstruction: { parts: [{ text: KYOPO_SYSTEM_PROMPT }] },
+          generationConfig: isJson ? { responseMimeType: "application/json" } : {}
+        };
+        const res = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+        if (!res.ok) throw new Error(`Gemini API Error: ${res.status}`);
+        const data = await res.json();
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!text) throw new Error("Empty candidate received from Gemini");
+        if (isJson) {
+          const clean = text.replace(/```json\s*/gi, '').replace(/```\s*$/g, '').trim();
+          return JSON.parse(clean);
+        }
+        return text;
+      },
+
+      initDefaultVault() {
+        const starterData = [
+          // Tier 1 (100% Known Mastered household basics)
+          { korean: "밥", english: "rice / meal", type: "noun", tier: 1, nuance: "Pairs with 먹다; highly familiar", sampleKorean: "점심 밥 먹었어요?", sampleEnglish: "Did you eat lunch?" },
+          { korean: "가다", english: "to go", type: "verb", tier: 1, nuance: "Target destination takes 에", sampleKorean: "내일 서울역에 가요.", sampleEnglish: "I'm going to Seoul Station tomorrow." },
+          { korean: "집", english: "house / home", type: "noun", tier: 1, nuance: "Static location takes 에, dynamic action 에서", sampleKorean: "집에서 편하게 쉬었어요.", sampleEnglish: "I rested comfortably at home." },
+          { korean: "전화하다", english: "to make a phone call", type: "verb", tier: 1, nuance: "Recipient takes 에게 or 한테", sampleKorean: "도착해서 전화할게요.", sampleEnglish: "I will call you when I arrive." },
+          { korean: "고맙다", english: "to be thankful", type: "adverb_adjective", tier: 1, nuance: "Conversational form: 고마워요", sampleKorean: "도와줘서 정말 고마워요.", sampleEnglish: "Thank you so much for helping." },
+
+          // Tier 2 (Familiar / Review Queue)
+          { korean: "챙기다", english: "to take care of / pack / not forget", type: "verb", tier: 2, nuance: "Object particle 을/를 (물건을 챙기다)", sampleKorean: "출근할 때 우산 꼭 챙기세요.", sampleEnglish: "Make sure you pack an umbrella when heading to work." },
+          { korean: "부담스럽다", english: "burdensome / uncomfortable / feel heavy", type: "adverb_adjective", tier: 2, nuance: "Essential polite declining keyword in Korean culture", sampleKorean: "선물이 너무 커서 조금 부담스러워요.", sampleEnglish: "The gift is so big that it feels a bit burdensome." },
+          { korean: "일정", english: "schedule / itinerary", type: "noun", tier: 2, nuance: "Collocates with 일정을 조율하다 (coordinate schedule)", sampleKorean: "다음 주 회의 일정을 확인해 주세요.", sampleEnglish: "Please check next week's meeting schedule." },
+          { korean: "넉넉하게", english: "generously / with plenty of margin", type: "adverb_adjective", tier: 2, nuance: "Great adverb when ordering or planning time", sampleKorean: "시간을 넉넉하게 잡고 이동합시다.", sampleEnglish: "Let's leave plenty of buffer time to travel." },
+          { korean: "추천하다", english: "to recommend", type: "verb", tier: 2, nuance: "Target person takes 에게 / 한테", sampleKorean: "가장 인기 있는 대표 메뉴를 추천해 주세요.", sampleEnglish: "Please recommend the most popular signature menu." },
+          { korean: "눈치", english: "social tact / intuitive awareness of mood", type: "noun", tier: 2, nuance: "Collocates with '눈치가 빠르다' or '눈치를 보다'", sampleKorean: "한국 직장에서는 눈치가 꽤 중요해요.", sampleEnglish: "In Korean workplaces, social tact is quite important." },
+          { korean: "솔직히", english: "honestly / frankly speaking", type: "adverb_adjective", tier: 2, nuance: "Frequently used to soften opinions: '솔직히 말씀드리면...'", sampleKorean: "솔직히 말씀드리면 이번 안건은 무리가 있어요.", sampleEnglish: "Honestly speaking, this agenda item is a bit unreasonable." },
+          { korean: "입맛에 맞다", english: "to suit one's palate / taste good", type: "expression", tier: 2, nuance: "Requires particle ~에: 음식[에] 입맛이 맞다", sampleKorean: "음식이 입맛에 잘 맞으셨으면 좋겠습니다.", sampleEnglish: "I hope the food suits your palate well." },
+
+          // Tier 3 (Learning / High Nuance)
+          { korean: "검토하다", english: "to review / examine thoroughly", type: "verb", tier: 3, nuance: "Crucial business term replacing generic 보다", sampleKorean: "보내주신 제안서를 꼼꼼히 검토하겠습니다.", sampleEnglish: "I will review the proposal you sent thoroughly." },
+          { korean: "조율하다", english: "to coordinate / mediate / tune", type: "verb", tier: 3, nuance: "Frequently used for meeting times and opinions", sampleKorean: "서로 편한 시간으로 일정을 조율해 보죠.", sampleEnglish: "Let's coordinate schedules to a time convenient for both." }
+        ];
+
+        this.vocabVault.clear();
+        starterData.forEach(item => {
+          this.vocabVault.set(item.korean, item);
+        });
+      },
+
+      updateVaultCounts() {
+        let t1 = 0, t2 = 0, t3 = 0;
+        this.vocabVault.forEach(item => {
+          if (item.tier === 1) t1++;
+          else if (item.tier === 2) t2++;
+          else if (item.tier === 3) t3++;
+        });
+
+        const setTxt = (id, val) => {
+          const el = document.getElementById(id);
+          if (el) el.textContent = val;
+        };
+
+        setTxt('t1CountBadge', t1);
+        setTxt('t2CountBadge', t2);
+        setTxt('t3CountBadge', t3);
+        setTxt('deckT1Count', t1);
+        setTxt('deckT2Count', t2);
+        setTxt('vaultTabAllCount', this.vocabVault.size);
+        setTxt('vaultTabT1Count', t1);
+        setTxt('vaultTabT2Count', t2);
+        setTxt('vaultTabT3Count', t3);
+      },
+
+      startQuickReviewDeck() {
+        const pool = [];
+        this.vocabVault.forEach(item => {
+          if (item.tier === 1 || item.tier === 2) {
+            pool.push(item);
+          }
+        });
+
+        if (pool.length === 0) {
+          this.showToast("No Tier 1 or Tier 2 words found. Add some or curate a lesson first!");
+          return;
+        }
+
+        const shuffled = [...pool].sort(() => Math.random() - 0.5);
+        this.quickDeck = shuffled.slice(0, 10);
+        this.currentQuickIndex = 0;
+        this.isQuickFlipped = false;
+
+        const container = document.getElementById('quickReviewContainer');
+        container.classList.remove('hidden');
+        this.renderQuickCard();
+        container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      },
+
+      closeQuickReviewDeck() {
+        document.getElementById('quickReviewContainer').classList.add('hidden');
+      },
+
+      currentQuickCard() {
+        return this.quickDeck[this.currentQuickIndex] || this.quickDeck[0] || {};
+      },
+
+      renderQuickCard() {
+        const card = this.currentQuickCard();
+        if (!card.korean) return;
+
+        this.isQuickFlipped = false;
+        const cardEl = document.getElementById('quickFlashcardEl');
+        cardEl.classList.remove('flipped');
+
+        document.getElementById('quickCardCounter').textContent = `Card ${this.currentQuickIndex + 1} of ${this.quickDeck.length}`;
+        
+        const tierBadge = document.getElementById('quickCardTierBadge');
+        if (card.tier === 1) {
+          tierBadge.className = "text-xs font-semibold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800";
+          tierBadge.textContent = "Current: Tier 1 (Mastered)";
+        } else if (card.tier === 2) {
+          tierBadge.className = "text-xs font-semibold px-2 py-0.5 rounded bg-amber-100 text-amber-800";
+          tierBadge.textContent = "Current: Tier 2 (Review Queue)";
+        } else {
+          tierBadge.className = "text-xs font-semibold px-2 py-0.5 rounded bg-blue-100 text-blue-800";
+          tierBadge.textContent = "Current: Tier 3 (Learning)";
+        }
+
+        document.getElementById('quickCardType').textContent = card.type?.toUpperCase().replace('_', ' ') || 'WORD';
+        document.getElementById('quickCardKorean').textContent = card.korean;
+        document.getElementById('quickCardEnglish').textContent = card.english;
+        document.getElementById('quickCardHanjaOrNote').textContent = card.nuance ? `[Note: ${card.nuance}]` : '';
+
+        document.getElementById('quickCardBackKorean').textContent = card.korean;
+        document.getElementById('quickCardSampleKorean').textContent = card.sampleKorean || `${card.korean}을/를 자주 사용합니다.`;
+        document.getElementById('quickCardSampleEnglish').textContent = card.sampleEnglish || `Frequently used in authentic dialogue.`;
+        document.getElementById('quickCardNuance').textContent = card.nuance || 'Pay attention to preceding particle pairings.';
+      },
+
+      toggleQuickCardFlip() {
+        this.isQuickFlipped = !this.isQuickFlipped;
+        const cardEl = document.getElementById('quickFlashcardEl');
+        if (this.isQuickFlipped) {
+          cardEl.classList.add('flipped');
+        } else {
+          cardEl.classList.remove('flipped');
+        }
+      },
+
+      nextQuickCard() {
+        if (this.currentQuickIndex < this.quickDeck.length - 1) {
+          this.currentQuickIndex++;
+          this.renderQuickCard();
+        } else {
+          this.showToast("Completed quick 10-card practice deck! Well done.");
+        }
+      },
+
+      prevQuickCard() {
+        if (this.currentQuickIndex > 0) {
+          this.currentQuickIndex--;
+          this.renderQuickCard();
+        }
+      },
+
+      moveQuickCardTier(newTier) {
+        const card = this.currentQuickCard();
+        if (!card.korean) return;
+
+        card.tier = newTier;
+        if (this.vocabVault.has(card.korean)) {
+          this.vocabVault.get(card.korean).tier = newTier;
+        } else {
+          this.vocabVault.set(card.korean, card);
+        }
+
+        this.updateVaultCounts();
+        this.renderQuickCard();
+        this.showToast(`"${card.korean}" moved to Tier ${newTier}!`);
+      },
+
+      dismissWordToTier(koreanWord, tier) {
+        const wordObj = this.curatedVocab.find(w => w.korean === koreanWord);
+        const itemToSave = wordObj ? { ...wordObj, tier } : { korean: koreanWord, english: "", type: "noun", tier };
+        
+        this.vocabVault.set(koreanWord, itemToSave);
+        this.updateVaultCounts();
+
+        const label = tier === 1 ? "Tier 1 (Mastered - Blacklisted)" : "Tier 2 (Review Queue)";
+        this.showToast(`Saved "${koreanWord}" to ${label}.`);
+
+        const type = wordObj ? wordObj.type : 'noun';
+        this.curatedVocab = this.curatedVocab.filter(w => w.korean !== koreanWord);
+        this.renderCurationContent();
+
+        this.swapWordReplacement(type);
+      },
+
+      renderCurationContent() {
+        const wordColsContainer = document.getElementById('curationWordCols');
+        document.getElementById('curatedVocabCount').textContent = this.curatedVocab.length;
+
+        const categories = [
+          { key: 'expression', label: 'Expressions (2)', color: 'border-l-purple-500 bg-purple-50/40 text-purple-700' },
+          { key: 'verb', label: 'Verbs (3)', color: 'border-l-dancheong-blue bg-blue-50/40 text-dancheong-blue' },
+          { key: 'noun', label: 'Nouns (5)', color: 'border-l-dancheong-green bg-emerald-50/40 text-emerald-700' },
+          { key: 'adverb_adjective', label: 'Adverbs & Adjectives (3)', color: 'border-l-amber-500 bg-amber-50/40 text-amber-700' }
+        ];
+
+        wordColsContainer.innerHTML = categories.map(cat => {
+          const items = this.curatedVocab.filter(v => v.type === cat.key);
+          return `
+            <div class="space-y-3">
+              <div class="text-xs font-bold uppercase tracking-wider px-2 py-1 rounded border-l-4 ${cat.color}">
+                ${cat.label}
+              </div>
+              <div class="space-y-2">
+                ${items.map(word => `
+                  <div class="p-3 rounded-xl border border-slate-200 hover:border-slate-300 bg-white space-y-2 transition">
+                    <div class="flex items-start justify-between">
+                      <span class="font-bold text-slate-800 text-sm">${word.korean}</span>
+                      <div class="flex items-center space-x-1.5">
+                        <button onclick="app.speakKorean('${word.korean}')" class="text-slate-400 hover:text-dancheong-blue p-0.5 text-xs">
+                          <i class="fa-solid fa-volume-high"></i>
+                        </button>
+                        <button onclick="app.askMentorAboutWord('${word.korean}', '${word.english}')" class="px-2 py-0.5 rounded bg-blue-50 hover:bg-blue-100 text-dancheong-blue text-[11px] font-semibold transition" title="Ask Gemini about this word's nuance & particles">
+                          <i class="fa-solid fa-sparkles mr-0.5"></i> Ask AI
+                        </button>
+                      </div>
+                    </div>
+                    <p class="text-xs text-slate-500">${word.english}</p>
+                    <div class="text-[11px] text-slate-400 italic">${word.nuance || ''}</div>
+                    
+                    <!-- Tier Actions -->
+                    <div class="pt-1 border-t border-slate-100 flex items-center justify-between gap-1 text-[11px]">
+                      <span class="text-slate-400">Dismiss to:</span>
+                      <div class="flex items-center space-x-1">
+                        <button onclick="app.dismissWordToTier('${word.korean}', 1)" class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 font-semibold" title="I know this 100%. Blacklist and replace.">
+                          T1 (100%)
+                        </button>
+                        <button onclick="app.dismissWordToTier('${word.korean}', 2)" class="px-2 py-0.5 rounded bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200 font-semibold" title="I know it but want future review. Save and replace.">
+                          T2 (Review)
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        // Render Patterns
+        const patternsList = document.getElementById('curationPatternsList');
+        patternsList.innerHTML = this.curatedPatterns.map((pat, idx) => `
+          <div class="p-4 rounded-xl border border-slate-200 bg-white hover:border-dancheong-green transition space-y-2">
+            <div class="flex items-start justify-between">
+              <div>
+                <span class="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">Pattern ${idx + 1}</span>
+                <h4 class="font-bold text-slate-800 text-base mt-1">${pat.pattern}</h4>
+              </div>
+              <div class="flex items-center space-x-2">
+                <button onclick="app.askMentorAboutPattern('${pat.pattern.replace(/'/g, "\\'")}')" class="px-2 py-1 rounded bg-blue-50 hover:bg-blue-100 text-dancheong-blue text-xs font-semibold transition" title="Ask Gemini about using this pattern">
+                  <i class="fa-solid fa-sparkles mr-1"></i> Ask AI
+                </button>
+                <button onclick="app.dismissPattern('${pat.id || pat.pattern}')" class="text-slate-400 hover:text-emerald-600 p-1 text-sm transition" title="I already know this pattern (Blacklist & Swap)">
+                  <i class="fa-solid fa-check"></i>
+                </button>
+              </div>
+            </div>
+            <p class="text-xs text-slate-600">${pat.explanation}</p>
+            <div class="bg-slate-50 p-2.5 rounded-lg text-xs space-y-1 border border-slate-100">
+              <span class="text-dancheong-blue font-semibold text-[11px]">Variations:</span>
+              ${(pat.variations || []).map(v => `
+                <div class="flex flex-col sm:flex-row sm:items-baseline sm:justify-between text-slate-700">
+                  <span class="font-medium">${v.korean}</span>
+                  <span class="text-slate-400 text-[11px]">${v.english}</span>
+                </div>
+              `).join('')}
+            </div>
+            <div class="text-[11px] text-amber-700">
+              <i class="fa-solid fa-circle-info mr-1"></i> ${pat.particleTip || 'Watch particle transitions.'}
+            </div>
+          </div>
+        `).join('');
+      },
+
+      initMentorChat(topic) {
+        this.mentorChatMessages = [
+          {
+            sender: 'gemini',
+            text: `안녕하세요! I'm your bilingual Korean mentor for **${topic.title}**.<br><br>As a Kyopo living in Seoul, you can ask me anything about natural phrasing, tricky particles (은/는 vs 이/가, 에 vs 에서), or how these words sound in business vs casual social settings. What would you like to explore?`
+          }
+        ];
+        this.renderMentorChat();
+      },
+
+      resetMentorChat() {
+        if (this.currentTopic) {
+          this.initMentorChat(this.currentTopic);
+        }
+      },
+
+      renderMentorChat() {
+        const container = document.getElementById('mentorChatHistory');
+        if (!container) return;
+
+        container.innerHTML = this.mentorChatMessages.map(msg => {
+          const isUser = msg.sender === 'user';
+          return `
+            <div class="flex flex-col ${isUser ? 'items-end' : 'items-start'} space-y-1">
+              <div class="flex items-center space-x-1.5 px-1">
+                <span class="text-[10px] font-bold ${isUser ? 'text-dancheong-blue' : 'text-slate-500'}">
+                  ${isUser ? 'You' : 'Gemini Mentor'}
+                </span>
+              </div>
+              <div class="p-3 rounded-2xl max-w-[92%] leading-relaxed ${
+                isUser 
+                  ? 'bg-dancheong-blue text-white rounded-tr-none' 
+                  : 'bg-slate-100 text-slate-800 rounded-tl-none border border-slate-200/60'
+              }">
+                <div>${msg.text}</div>
+                ${!isUser && msg.hasKoreanAudio ? `
+                  <div class="mt-2 pt-1.5 border-t border-slate-200/80 flex justify-end">
+                    <button onclick="app.speakKorean('${msg.koreanToSpeak.replace(/'/g, "\\'")}')" class="text-[11px] text-dancheong-blue hover:underline flex items-center space-x-1">
+                      <i class="fa-solid fa-volume-high"></i>
+                      <span>Listen to Korean</span>
+                    </button>
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        container.scrollTop = container.scrollHeight;
+      },
+
+      async sendMentorMessage(customText = null) {
+        const inputEl = document.getElementById('mentorChatInput');
+        const text = customText || inputEl.value.trim();
+        if (!text) return;
+
+        if (!customText) inputEl.value = '';
+
+        // Add user message to history
+        this.mentorChatMessages.push({ sender: 'user', text });
+        this.renderMentorChat();
+
+        // Add thinking bubble
+        this.mentorChatMessages.push({
+          sender: 'gemini',
+          text: `<i class="fa-solid fa-circle-notch animate-spin mr-1"></i> Thinking...`,
+          isThinking: true
+        });
+        this.renderMentorChat();
+
+        const wordsOnScreen = this.curatedVocab.map(w => `${w.korean} (${w.english})`).join(', ');
+        const patternsOnScreen = this.curatedPatterns.map(p => p.pattern).join('; ');
+
+        const prompt = `You are a real-time linguistic and cultural mentor for a 53-year-old Korean-American heritage learner living in Seoul.
+Topic being curated: "${this.currentTopic ? this.currentTopic.title : 'General Korean'}"
+Current vocabulary pool on screen: [${wordsOnScreen}]
+Current sentence patterns: [${patternsOnScreen}]
+
+Student's question or inquiry: "${text}"
+
+Provide a concise, practical, highly encouraging answer (max 3-4 short paragraphs):
+- Highlight particle rules (은/는 vs 이/가, 에 vs 에서, (으)로) whenever relevant.
+- Provide 1-2 authentic conversational examples (해요체) and, if applicable, 1 formal/business example (하십시오체).
+- Point out subtle connotations or generational nuances (e.g. what sounds natural to Seoulites vs awkward direct English translation).
+Use clean HTML formatting (<b> for bold, <code> for particles/Hangul, <br> for line breaks). Avoid raw markdown tags like ###.`;
+
+        try {
+          const reply = await this.callGemini(prompt, false);
+          // Remove thinking message
+          this.mentorChatMessages = this.mentorChatMessages.filter(m => !m.isThinking);
+          
+          // Extract any Korean block for audio button if present
+          const koreanMatches = reply.match(/[\uAC00-\uD7AF\u1100-\u11FF\u3130-\u318F]{3,}/g);
+          const koreanSnippet = koreanMatches ? koreanMatches.slice(0, 5).join(' ') : null;
+
+          this.mentorChatMessages.push({
+            sender: 'gemini',
+            text: reply.replace(/\n/g, '<br>'),
+            hasKoreanAudio: !!koreanSnippet,
+            koreanToSpeak: koreanSnippet || ''
+          });
+        } catch (e) {
+          console.warn("Mentor error:", e);
+          this.mentorChatMessages = this.mentorChatMessages.filter(m => !m.isThinking);
+          this.mentorChatMessages.push({
+            sender: 'gemini',
+            text: `In authentic Seoul speech, nuance depends heavily on particles and social setting. For example, use <code>~에</code> for arrival destinations or static time, and <code>~에서</code> for dynamic actions taking place inside a venue. Feel free to ask about any specific word on your left!`
+          });
+        } finally {
+          this.renderMentorChat();
+        }
+      },
+
+      askMentorQuick(query) {
+        this.sendMentorMessage(query);
+      },
+
+      askMentorAboutWord(koreanWord, englishMeaning) {
+        const query = `Can you explain the nuanced usage of "${koreanWord}" (${englishMeaning})? What particles does it take, and what is a natural conversational example?`;
+        this.sendMentorMessage(query);
+      },
+
+      askMentorAboutPattern(pattern) {
+        const query = `How do I naturally use the pattern "${pattern}" when stringing complex thoughts together? What are common Kyopo mistakes with it?`;
+        this.sendMentorMessage(query);
+      },
+
+      toggleKnownDrawer(open) {
+        const drawer = document.getElementById('knownDrawer');
+        const backdrop = document.getElementById('knownDrawerBackdrop');
+        const panel = document.getElementById('knownDrawerPanel');
+
+        const shouldOpen = (open !== undefined) ? open : drawer.classList.contains('hidden');
+
+        if (shouldOpen) {
+          this.renderVaultList();
+          drawer.classList.remove('hidden');
+          requestAnimationFrame(() => {
+            backdrop.classList.remove('opacity-0');
+            backdrop.classList.add('opacity-100');
+            panel.classList.remove('translate-x-full');
+          });
+        } else {
+          backdrop.classList.remove('opacity-100');
+          backdrop.classList.add('opacity-0');
+          panel.classList.add('translate-x-full');
+          setTimeout(() => {
+            drawer.classList.add('hidden');
+          }, 300);
+        }
+      },
+
+      setVaultTab(tabKey) {
+        this.activeVaultTab = tabKey;
+        const tabs = ['all', 'tier1', 'tier2', 'tier3'];
+        tabs.forEach(t => {
+          const btn = document.getElementById(`vaultTab${t.charAt(0).toUpperCase() + t.slice(1)}`);
+          if (btn) {
+            if (t === tabKey) {
+              btn.className = "py-1.5 rounded-lg bg-white text-slate-900 shadow-sm transition font-bold";
+            } else {
+              btn.className = "py-1.5 rounded-lg text-slate-600 hover:bg-white/60 transition";
+            }
+          }
+        });
+        this.renderVaultList();
+      },
+
+      renderVaultList() {
+        const container = document.getElementById('knownListContainer');
+        const searchVal = (document.getElementById('vaultSearchInput')?.value || '').trim().toLowerCase();
+
+        let list = Array.from(this.vocabVault.values());
+
+        if (this.activeVaultTab === 'tier1') list = list.filter(i => i.tier === 1);
+        else if (this.activeVaultTab === 'tier2') list = list.filter(i => i.tier === 2);
+        else if (this.activeVaultTab === 'tier3') list = list.filter(i => i.tier === 3);
+
+        if (searchVal) {
+          list = list.filter(i => i.korean.toLowerCase().includes(searchVal) || (i.english && i.english.toLowerCase().includes(searchVal)));
+        }
+
+        if (list.length === 0) {
+          container.innerHTML = `
+            <div class="text-center py-12 text-slate-400 space-y-2">
+              <i class="fa-regular fa-folder-open text-3xl"></i>
+              <p class="text-sm">No words found in this view.</p>
+              <p class="text-xs">Classify words as Tier 1, 2, or 3 during curation or add them manually.</p>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = list.map(item => `
+          <div class="p-3 rounded-xl border border-slate-200 bg-white space-y-2 text-xs">
+            <div class="flex items-start justify-between">
+              <div>
+                <div class="flex items-center space-x-2">
+                  <span class="font-bold text-slate-800 text-sm">${item.korean}</span>
+                  <span class="text-[10px] px-1.5 py-0.2 rounded font-mono ${
+                    item.tier === 1 ? 'bg-emerald-100 text-emerald-800' :
+                    item.tier === 2 ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'
+                  }">
+                    Tier ${item.tier}
+                  </span>
+                </div>
+                <p class="text-slate-500 text-xs mt-0.5">${item.english || ''}</p>
+              </div>
+              <div class="flex items-center space-x-1">
+                <button onclick="app.speakKorean('${item.korean}')" class="p-1 text-slate-400 hover:text-dancheong-blue" title="Listen">
+                  <i class="fa-solid fa-volume-high"></i>
+                </button>
+                <button onclick="app.removeVaultItem('${item.korean}')" class="p-1 text-slate-400 hover:text-red-600" title="Delete word">
+                  <i class="fa-solid fa-trash-can"></i>
+                </button>
+              </div>
+            </div>
+
+            ${item.sampleKorean ? `
+              <div class="bg-slate-50 p-2 rounded-lg text-[11px] text-slate-600">
+                <p class="font-medium text-slate-800">${item.sampleKorean}</p>
+                <p class="text-slate-400 text-[10px]">${item.sampleEnglish || ''}</p>
+              </div>
+            ` : ''}
+
+            <!-- Quick Tier Shift Buttons -->
+            <div class="flex items-center justify-between border-t border-slate-100 pt-1.5 text-[10px]">
+              <span class="text-slate-400">Change Tier:</span>
+              <div class="flex items-center space-x-1">
+                <button onclick="app.updateItemTier('${item.korean}', 1)" class="px-2 py-0.5 rounded ${item.tier === 1 ? 'bg-emerald-600 text-white font-bold' : 'bg-slate-100 text-slate-700 hover:bg-emerald-50'}">
+                  T1 (Mastered)
+                </button>
+                <button onclick="app.updateItemTier('${item.korean}', 2)" class="px-2 py-0.5 rounded ${item.tier === 2 ? 'bg-amber-600 text-white font-bold' : 'bg-slate-100 text-slate-700 hover:bg-amber-50'}">
+                  T2 (Review)
+                </button>
+                <button onclick="app.updateItemTier('${item.korean}', 3)" class="px-2 py-0.5 rounded ${item.tier === 3 ? 'bg-blue-600 text-white font-bold' : 'bg-slate-100 text-slate-700 hover:bg-blue-50'}">
+                  T3 (Learning)
+                </button>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      },
+
+      updateItemTier(korean, newTier) {
+        if (this.vocabVault.has(korean)) {
+          this.vocabVault.get(korean).tier = newTier;
+          this.updateVaultCounts();
+          this.renderVaultList();
+          this.showToast(`Updated "${korean}" to Tier ${newTier}`);
+        }
+      },
+
+      removeVaultItem(korean) {
+        this.vocabVault.delete(korean);
+        this.updateVaultCounts();
+        this.renderVaultList();
+        this.showToast(`Removed "${korean}" from vault.`);
+      },
+
+      promptAddCustomVaultWord() {
+        const word = prompt("Enter Korean word or phrase:");
+        if (!word || !word.trim()) return;
+        const def = prompt("Enter English definition:") || "";
+        const tierChoice = parseInt(prompt("Assign to Tier (1 = Mastered, 2 = Review, 3 = Learning):") || "2", 10);
+        const tier = [1, 2, 3].includes(tierChoice) ? tierChoice : 2;
+
+        this.vocabVault.set(word.trim(), {
+          korean: word.trim(),
+          english: def.trim(),
+          type: "noun",
+          tier: tier,
+          nuance: "User custom entry",
+          sampleKorean: `${word.trim()} 연습 중입니다.`,
+          sampleEnglish: "Practicing this expression."
+        });
+
+        this.updateVaultCounts();
+        this.renderVaultList();
+        this.showToast(`Added "${word.trim()}" to Tier ${tier}.`);
+      },
+
+      clearKnownBank() {
+        this.initDefaultVault();
+        this.updateVaultCounts();
+        this.renderVaultList();
+        this.showToast("Reset vault to default 3-tier vocabulary set.");
+      },
+
+      async fetchCuratedMix(topic) {
+        const loadingBox = document.getElementById('curationLoading');
+        const contentBox = document.getElementById('curationContent');
+        loadingBox.classList.remove('hidden');
+        contentBox.classList.add('hidden');
+
+        const tier1Words = [];
+        this.vocabVault.forEach(item => {
+          if (item.tier === 1) tier1Words.push(item.korean);
+        });
+
+        const knownNote = tier1Words.length > 0 
+          ? `CRITICAL EXCLUSION: The student ALREADY knows 100% and has blacklisted these Mastered (Tier 1) words: [${tier1Words.join(', ')}]. DO NOT include them. Provide intermediate-advanced conversational expressions.` 
+          : '';
+
+        const prompt = `You are designing a high-impact Korean lesson for an adult Korean-American (age 53, moved to Seoul in 2020) on the topic: "${topic.title}".
+Background context: ${topic.desc}
+${knownNote}
+
+Requirement: Provide EXACTLY:
+- 2 idiomatic expressions (type: "expression")
+- 3 high-utility verbs (type: "verb")
+- 5 essential nouns (type: "noun")
+- 3 adverbs or adjectives (type: "adverb_adjective")
+- Total = 13 vocabulary items.
+- 3 sentence patterns (type: "pattern") that help string together complex thoughts, each having 2 natural variations and a Kyopo particle tip.
+
+Return JSON in this EXACT structure:
+{
+  "vocab": [
+    {
+      "korean": "word in Hangul",
+      "english": "concise English meaning",
+      "type": "expression" | "verb" | "noun" | "adverb_adjective",
+      "nuance": "One sentence nuance note or particle tip for a heritage speaker",
+      "sampleKorean": "Sample natural sentence",
+      "sampleEnglish": "English translation",
+      "tenses": {
+        "present": "해요체 form",
+        "past": "past tense form",
+        "honorific": "하십시오체 or (으)시 form",
+        "futureIntent": "intent form like ~(으)려고 하다 or ~ㄹ 거예요"
+      }
+    }
+  ],
+  "patterns": [
+    {
+      "id": "p1",
+      "pattern": "A~(으)ㄴ/는 반면에 B (While A, on the other hand B)",
+      "explanation": "Explains contrast between two clauses smoothly.",
+      "particleTip": "Watch out for adjective vs verb inflection before 반면에",
+      "variations": [
+        { "korean": "음식은 맛있는 반면에 가격은 조금 비싸요.", "english": "While the food is delicious, the price on the other hand is a bit steep." },
+        { "korean": "말은 편하게 하는 반면에 일할 때는 굉장히 철저해요.", "english": "While he speaks casually, on the other hand he is very thorough when working." }
+      ]
+    }
+  ]
+}`;
+
+        try {
+          const response = await this.callGemini(prompt, true);
+          if (response && response.vocab && response.patterns) {
+            this.curatedVocab = response.vocab;
+            this.curatedPatterns = response.patterns;
+            this.renderCurationContent();
+          } else {
+            throw new Error("Invalid schema received");
+          }
+        } catch (err) {
+          console.warn("Fallback to topic-specific curriculum:", err);
+          this.loadFallbackCurated(topic);
+          this.renderCurationContent();
+        } finally {
+          loadingBox.classList.add('hidden');
+          contentBox.classList.remove('hidden');
+        }
+      },
+
+      async swapWordReplacement(type) {
+        const tier1Words = [];
+        this.vocabVault.forEach(item => { if (item.tier === 1) tier1Words.push(item.korean); });
+
+        const prompt = `The student already knows vocabulary on topic "${this.currentTopic.title}". 
+Provide ONE replacement vocabulary item of type "${type}" that is more natural, nuanced, or advanced for a Korean heritage speaker.
+Excluded known Tier 1 words: [${tier1Words.join(', ')}]
+Return valid JSON for ONE item:
+{
+  "korean": "word",
+  "english": "definition",
+  "type": "${type}",
+  "nuance": "particle tip or nuance",
+  "sampleKorean": "natural example sentence",
+  "sampleEnglish": "English translation",
+  "tenses": { "present": "...", "past": "...", "honorific": "...", "futureIntent": "..." }
+}`;
+        try {
+          const item = await this.callGemini(prompt, true);
+          if (item && item.korean) {
+            this.curatedVocab.push(item);
+            this.renderCurationContent();
+            this.showToast(`Swapped in fresh word: "${item.korean}"`);
+          }
+        } catch (e) {
+          console.log("Could not swap online word; retaining pool.");
+        }
+      },
+
+      dismissPattern(patternId) {
+        this.dismissedPatterns.add(patternId);
+        this.showToast(`Pattern marked as known & dismissed.`);
+        this.curatedPatterns = this.curatedPatterns.filter(p => (p.id !== patternId && p.pattern !== patternId));
+        this.renderCurationContent();
+      },
+
+      async generateFullLesson() {
+        if (this.curatedVocab.length < 5) {
+          this.showToast("Please keep at least 5-8 words in your lesson pool.");
+          return;
+        }
+
+        // Register any curated words entering the lesson as Tier 3 (Learning)
+        this.curatedVocab.forEach(v => {
+          if (!this.vocabVault.has(v.korean)) {
+            this.vocabVault.set(v.korean, { ...v, tier: 3 });
+          }
+        });
+        this.updateVaultCounts();
+
+        const btn = document.getElementById('btnStartLesson');
+        btn.disabled = true;
+        btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin mr-1"></i> Generating Lesson...`;
+
+        const vocabListStr = this.curatedVocab.map(v => `${v.korean} (${v.english})`).join(', ');
+        const patternsStr = this.curatedPatterns.map(p => p.pattern).join('; ');
+
+        const prompt = `Generate interactive lesson content for our Kyopo student based on these curated words and patterns:
+Topic: "${this.currentTopic.title}"
+Curated Vocabulary: ${vocabListStr}
+Sentence Patterns: ${patternsStr}
+
+Create JSON with:
+1. "quiz": An array of 4 multiple-choice questions focusing heavily on PARTICLE SELECTION (은/는 vs 이/가, 에 vs 에서, (으)로, etc.) and nuanced word choice. Each question has:
+   - "type": "Particle Cloze" or "Conversational Meaning"
+   - "korean": "sentence with [ ? ] or blank"
+   - "english": "sentence translation"
+   - "options": array of 4 strings (e.g. ["은", "이", "을", "에"])
+   - "answerIndex": integer 0-3
+   - "explanation": Detailed bilingual explanation highlighting WHY the chosen particle or word sounds native vs awkward.
+2. "patternExercises": 3 sentence-building exercises where student expands a simple thought into a complex thought:
+   - "simpleThought": e.g. "식당에 가요. (I go to the restaurant)"
+   - "connector": e.g. "~(으)러"
+   - "complexThought": e.g. "주말에 친구들과 삼겹살을 먹으러 맛집에 가요."
+   - "english": "translation"
+   - "particleFocus": "e.g., Notice using (으)러 for purpose followed by dynamic motion."
+3. "dialogue": 6 sequential dialogue lines between two natural speakers:
+   - "speaker": "Speaker Name"
+   - "korean": "Spoken sentence in Korean"
+   - "english": "English translation"
+   - "tone": "Colloquial Polite (해요체)" or "Business Formal (하십시오체)"
+4. "situationPrompt": A realistic, multi-clause scenario prompt requiring the student to write a response in Korean.
+
+Format strictly as JSON.`;
+
+        try {
+          const lessonPackage = await this.callGemini(prompt, true);
+          if (lessonPackage && lessonPackage.quiz && lessonPackage.dialogue) {
+            this.quizData = lessonPackage.quiz;
+            this.patternExercises = lessonPackage.patternExercises || [];
+            this.dialogueLines = lessonPackage.dialogue;
+            this.currentSituationPrompt = lessonPackage.situationPrompt || `You need to communicate politely in this scenario with connected clauses.`;
+          } else {
+            throw new Error("Invalid lesson payload");
+          }
+        } catch (err) {
+          console.warn("Using contextual fallback lesson generator:", err);
+          this.buildFallbackLesson();
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = `<span>Build My Lesson</span> <i class="fa-solid fa-arrow-right text-xs"></i>`;
+
+          document.getElementById('curationView').classList.add('hidden');
+          document.getElementById('lessonView').classList.remove('hidden');
+          document.getElementById('activeLessonTopicTitle').textContent = this.currentTopic.title;
+          
+          this.currentCardIndex = 0;
+          this.switchStage(1);
+        }
+      },
+
+      switchStage(stageNum) {
+        this.activeStage = stageNum;
+        
+        for (let i = 1; i <= 5; i++) {
+          const container = document.getElementById(`stage${i}Container`);
+          const tab = document.getElementById(`tabStage${i}`);
+          if (container) container.classList.add('hidden');
+          if (tab) {
+            tab.className = "py-2 px-1 text-center rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 transition";
+          }
+        }
+
+        const activeContainer = document.getElementById(`stage${stageNum}Container`);
+        const activeTab = document.getElementById(`tabStage${stageNum}`);
+        if (activeContainer) activeContainer.classList.remove('hidden');
+        if (activeTab) {
+          activeTab.className = "py-2 px-1 text-center rounded-lg text-xs font-semibold transition border border-transparent bg-dancheong-blue text-white shadow-sm";
+        }
+
+        document.getElementById('stageBadge').textContent = `Stage ${stageNum} of 5`;
+
+        if (stageNum === 1) this.renderFlashcard();
+        if (stageNum === 2) this.renderQuiz();
+        if (stageNum === 3) this.renderPatternExercises();
+        if (stageNum === 4) this.renderDialogue();
+        if (stageNum === 5) this.renderSituationStage();
+
+        window.scrollTo({ top: 120, behavior: 'smooth' });
+      },
+
+      exitLessonToCuration() {
+        document.getElementById('lessonView').classList.add('hidden');
+        document.getElementById('curationView').classList.remove('hidden');
+      },
+
+      currentFlashcard() {
+        return this.curatedVocab[this.currentCardIndex] || this.curatedVocab[0] || {};
+      },
+
+      renderFlashcard() {
+        const card = this.currentFlashcard();
+        if (!card.korean) return;
+
+        this.isCardFlipped = false;
+        const cardEl = document.getElementById('flashcardElement');
+        cardEl.classList.remove('flipped');
+
+        document.getElementById('flashcardCounter').textContent = `Card ${this.currentCardIndex + 1} of ${this.curatedVocab.length}`;
+        
+        document.getElementById('cardType').textContent = card.type?.toUpperCase().replace('_', ' ') || 'WORD';
+        document.getElementById('cardKorean').textContent = card.korean;
+        document.getElementById('cardEnglish').textContent = card.english;
+        document.getElementById('cardHanjaOrNote').textContent = card.nuance || '';
+
+        document.getElementById('cardBackType').textContent = `${card.type || 'Word'} Usage & Nuance`;
+        document.getElementById('cardBackKorean').textContent = card.korean;
+        document.getElementById('cardSampleKorean').textContent = card.sampleKorean || `${card.korean}을/를 자주 사용합니다.`;
+        document.getElementById('cardSampleEnglish').textContent = card.sampleEnglish || `Frequently used in conversation.`;
+        document.getElementById('cardParticleTip').textContent = card.nuance || 'Pay close attention to adjacent prepositions and particles.';
+
+        const tensesBox = document.getElementById('cardVerbTensesBox');
+        const tensesGrid = document.getElementById('cardTensesGrid');
+        if (card.tenses && (card.type === 'verb' || card.tenses.present)) {
+          tensesBox.classList.remove('hidden');
+          tensesGrid.innerHTML = `
+            <div><span class="text-slate-400">Present (해요):</span> <span class="font-bold text-white">${card.tenses.present || '-'}</span></div>
+            <div><span class="text-slate-400">Past:</span> <span class="font-bold text-white">${card.tenses.past || '-'}</span></div>
+            <div><span class="text-slate-400">Honorific:</span> <span class="font-bold text-amber-300">${card.tenses.honorific || '-'}</span></div>
+            <div><span class="text-slate-400">Intent:</span> <span class="font-bold text-blue-300">${card.tenses.futureIntent || '-'}</span></div>
+          `;
+        } else {
+          tensesBox.classList.add('hidden');
+        }
+      },
+
+      toggleCardFlip() {
+        this.isCardFlipped = !this.isCardFlipped;
+        const cardEl = document.getElementById('flashcardElement');
+        if (this.isCardFlipped) {
+          cardEl.classList.add('flipped');
+        } else {
+          cardEl.classList.remove('flipped');
+        }
+      },
+
+      nextCard() {
+        if (this.currentCardIndex < this.curatedVocab.length - 1) {
+          this.currentCardIndex++;
+          this.renderFlashcard();
+        } else {
+          this.showToast("Completed all flashcards! Ready for the quiz.");
+          this.switchStage(2);
+        }
+      },
+
+      prevCard() {
+        if (this.currentCardIndex > 0) {
+          this.currentCardIndex--;
+          this.renderFlashcard();
+        }
+      },
+
+      renderQuiz() {
+        if (!this.quizData || this.quizData.length === 0) {
+          this.buildFallbackLesson();
+        }
+
+        const q = this.quizData[this.currentQuizIndex];
+        if (!q) return;
+
+        document.getElementById('quizProgressText').textContent = `Question ${this.currentQuizIndex + 1} of ${this.quizData.length}`;
+        document.getElementById('quizTypeBadge').textContent = q.type || 'Particle Mastery';
+        document.getElementById('quizQuestionContext').textContent = q.type === 'Particle Cloze' ? 'Select the natural spoken particle:' : 'Choose the correct meaning:';
+        document.getElementById('quizQuestionText').textContent = q.korean;
+        document.getElementById('quizQuestionTranslation').textContent = `"${q.english}"`;
+
+        const audioBtn = document.getElementById('btnQuizAudio');
+        audioBtn.onclick = () => this.speakKorean(q.korean.replace(/\[.*?\]/g, ''));
+
+        const feedbackBox = document.getElementById('quizFeedbackBox');
+        feedbackBox.classList.add('hidden');
+        document.getElementById('btnQuizNext').classList.add('hidden');
+
+        const optionsContainer = document.getElementById('quizOptionsContainer');
+        optionsContainer.innerHTML = q.options.map((opt, i) => `
+          <button onclick="app.checkQuizAnswer(${i})" class="quiz-opt-btn w-full p-4 text-left rounded-xl border border-slate-200 hover:border-dancheong-blue hover:bg-blue-50/50 text-slate-800 font-semibold transition text-base flex items-center justify-between">
+            <span>${opt}</span>
+            <span class="w-6 h-6 rounded-full border border-slate-300 text-xs flex items-center justify-center text-slate-400 font-mono font-normal">
+              ${['A','B','C','D'][i]}
+            </span>
+          </button>
+        `).join('');
+      },
+
+      checkQuizAnswer(selectedIndex) {
+        const q = this.quizData[this.currentQuizIndex];
+        const buttons = document.querySelectorAll('.quiz-opt-btn');
+        buttons.forEach(btn => btn.disabled = true);
+
+        const isCorrect = selectedIndex === q.answerIndex;
+        const feedbackBox = document.getElementById('quizFeedbackBox');
+        const statusEl = document.getElementById('quizFeedbackStatus');
+        const explEl = document.getElementById('quizFeedbackExplanation');
+
+        feedbackBox.classList.remove('hidden');
+
+        if (isCorrect) {
+          this.quizScore++;
+          feedbackBox.className = "p-4 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-900 text-sm space-y-2";
+          statusEl.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 text-base"></i> <span class="font-bold text-emerald-800">정답입니다! (Correct!)</span>`;
+          buttons[selectedIndex].classList.add('bg-emerald-100', 'border-emerald-500', 'text-emerald-900');
+        } else {
+          feedbackBox.className = "p-4 rounded-xl border border-red-200 bg-red-50 text-red-900 text-sm space-y-2";
+          statusEl.innerHTML = `<i class="fa-solid fa-circle-xmark text-red-600 text-base"></i> <span class="font-bold text-red-800">아쉽네요 (Not quite!)</span>`;
+          buttons[selectedIndex].classList.add('bg-red-100', 'border-red-400', 'text-red-900');
+          buttons[q.answerIndex].classList.add('bg-emerald-100', 'border-emerald-500', 'text-emerald-900');
+        }
+
+        explEl.innerHTML = `<strong>Linguistic Note:</strong> ${q.explanation}`;
+        document.getElementById('btnQuizNext').classList.remove('hidden');
+      },
+
+      nextQuizQuestion() {
+        if (this.currentQuizIndex < this.quizData.length - 1) {
+          this.currentQuizIndex++;
+          this.renderQuiz();
+        } else {
+          this.showToast(`Quiz completed! Score: ${this.quizScore} / ${this.quizData.length}`);
+          this.switchStage(3);
+        }
+      },
+
+      renderPatternExercises() {
+        const container = document.getElementById('patternExercisesContainer');
+        container.innerHTML = this.patternExercises.map((ex, i) => `
+          <div class="bg-white rounded-2xl p-6 border border-slate-200 card-shadow space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-dancheong-green">Thought Expansion #${i + 1}</span>
+              <button onclick="app.speakKorean('${ex.complexThought.replace(/'/g, "\\'")}')" class="text-slate-400 hover:text-dancheong-blue transition">
+                <i class="fa-solid fa-volume-high"></i>
+              </button>
+            </div>
+
+            <div class="space-y-3">
+              <div class="flex items-center space-x-3 p-2.5 rounded-lg bg-slate-50 text-xs sm:text-sm">
+                <span class="px-2 py-0.5 rounded bg-slate-200 text-slate-700 font-bold text-xs">Simple Thought</span>
+                <span class="text-slate-800 font-medium">${ex.simpleThought}</span>
+              </div>
+
+              <div class="flex items-center space-x-2 text-xs text-dancheong-blue font-semibold pl-4">
+                <i class="fa-solid fa-link text-slate-400"></i>
+                <span>Connect with: <code class="bg-blue-50 px-2 py-0.5 rounded border border-blue-200 font-mono">${ex.connector}</code></span>
+              </div>
+
+              <div class="p-3.5 rounded-xl bg-blue-50/60 border border-blue-100 space-y-1">
+                <span class="text-[11px] font-bold uppercase tracking-wide text-dancheong-blue">Natural Multi-Clause Thought</span>
+                <p class="text-base font-bold text-slate-900">${ex.complexThought}</p>
+                <p class="text-xs text-slate-600 italic">"${ex.english}"</p>
+              </div>
+
+              <div class="text-xs text-amber-800 bg-amber-50 p-2.5 rounded-lg border border-amber-200">
+                <i class="fa-solid fa-lightbulb text-amber-500 mr-1"></i>
+                <strong>Particle & Nuance:</strong> ${ex.particleFocus}
+              </div>
+            </div>
+          </div>
+        `).join('');
+      },
+
+      renderDialogue() {
+        document.getElementById('dialogueScenarioTitle').textContent = `Dialogue: ${this.currentTopic.title}`;
+        const container = document.getElementById('dialogueLinesContainer');
+
+        container.innerHTML = this.dialogueLines.map((line, idx) => {
+          const isUserRole = idx % 2 === 0;
+          return `
+            <div class="flex flex-col space-y-1 ${isUserRole ? 'items-start' : 'items-end'}">
+              <div class="flex items-center space-x-2 px-1">
+                <span class="text-[11px] font-bold text-slate-500">${line.speaker}</span>
+                <span class="text-[10px] px-1.5 py-0.2 rounded bg-slate-100 text-slate-500 font-mono">${line.tone || '해요체'}</span>
+              </div>
+              <div class="flex items-center space-x-2 max-w-[85%]">
+                ${isUserRole ? `
+                  <button onclick="app.speakKorean('${line.korean.replace(/'/g, "\\'")}')" class="w-8 h-8 flex-shrink-0 rounded-full bg-slate-100 hover:bg-blue-100 text-dancheong-blue flex items-center justify-center text-xs transition">
+                    <i class="fa-solid fa-volume-high"></i>
+                  </button>
+                ` : ''}
+
+                <div class="p-3.5 rounded-2xl ${isUserRole ? 'bg-slate-100 text-slate-900 rounded-tl-none' : 'bg-dancheong-blue text-white rounded-tr-none'} shadow-sm">
+                  <p class="text-sm font-semibold">${line.korean}</p>
+                  <p class="dialogue-sub text-xs mt-1 ${isUserRole ? 'text-slate-500' : 'text-blue-100'} ${this.showSubtitles ? '' : 'hidden'}">${line.english}</p>
+                </div>
+
+                ${!isUserRole ? `
+                  <button onclick="app.speakKorean('${line.korean.replace(/'/g, "\\'")}')" class="w-8 h-8 flex-shrink-0 rounded-full bg-slate-100 hover:bg-blue-100 text-dancheong-blue flex items-center justify-center text-xs transition">
+                    <i class="fa-solid fa-volume-high"></i>
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+          `;
+        }).join('');
+      },
+
+      toggleEnglishSubtitles() {
+        this.showSubtitles = !this.showSubtitles;
+        document.querySelectorAll('.dialogue-sub').forEach(el => {
+          if (this.showSubtitles) el.classList.remove('hidden');
+          else el.classList.add('hidden');
+        });
+        const btn = document.getElementById('btnToggleSubtitles');
+        btn.textContent = this.showSubtitles ? 'Hide English' : 'Show English';
+      },
+
+      playEntireDialogue() {
+        if (!this.dialogueLines || this.dialogueLines.length === 0) return;
+        let index = 0;
+        const playNext = () => {
+          if (index < this.dialogueLines.length) {
+            const text = this.dialogueLines[index].korean;
+            this.speakKorean(text, () => {
+              index++;
+              setTimeout(playNext, 600);
+            });
+          }
+        };
+        playNext();
+      },
+
+      renderSituationStage() {
+        document.getElementById('situationPromptText').textContent = this.currentSituationPrompt;
+        document.getElementById('userSituationalInput').value = '';
+        document.getElementById('evalResultsBox').classList.add('hidden');
+      },
+
+      insertKoreanChar(txt) {
+        const ta = document.getElementById('userSituationalInput');
+        const pos = ta.selectionStart || ta.value.length;
+        ta.value = ta.value.substring(0, pos) + ' ' + txt + ' ' + ta.value.substring(pos);
+        ta.focus();
+      },
+
+      async submitSituationalResponse() {
+        const text = document.getElementById('userSituationalInput').value.trim();
+        if (!text) {
+          this.showToast("Please write a short sentence in Korean first!");
+          return;
+        }
+
+        const loading = document.getElementById('evalLoading');
+        const resultsBox = document.getElementById('evalResultsBox');
+        const btn = document.getElementById('btnSubmitSituation');
+
+        loading.classList.remove('hidden');
+        resultsBox.classList.add('hidden');
+        btn.disabled = true;
+
+        const prompt = `Evaluate this Korean response written by a 53-year-old Korean-American (heritage speaker) living in Seoul.
+Topic: "${this.currentTopic.title}"
+Scenario Goal: "${this.currentSituationPrompt}"
+Student's Korean Submission: "${text}"
+
+Provide a detailed pedagogical review specifically focusing on:
+1. Particle precision (은/는 vs 이/가, 에 vs 에서, (으)로, etc.)
+2. Natural Seoul phrasing vs literal English translation
+3. Provide a more natural conversational version (해요체)
+4. Provide a polished business/formal version (하십시오체)
+
+Format response STRICTLY as JSON with these keys:
+{
+  "overallScore": 85,
+  "feedbackSummary": "Friendly encouragement highlighting positive fluency and main tweak.",
+  "particleNotes": [
+    "Specific note on particle usage found in their text or where one was missing"
+  ],
+  "naturalConversational": "More natural conversational Korean phrasing (해요체)",
+  "businessPolite": "Polished business or polite customer phrasing",
+  "explanation": "Brief breakdown explaining why these alternatives sound more native."
+}`;
+
+        try {
+          const evalData = await this.callGemini(prompt, true);
+          this.renderEvaluationResults(evalData);
+        } catch (e) {
+          console.warn("Evaluating via fallback rules:", e);
+          this.renderFallbackEvaluation(text);
+        } finally {
+          loading.classList.add('hidden');
+          resultsBox.classList.remove('hidden');
+          btn.disabled = false;
+        }
+      },
+
+      renderEvaluationResults(res) {
+        const box = document.getElementById('evalResultsBox');
+        box.innerHTML = `
+          <div class="p-4 rounded-xl bg-slate-900 text-white space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div class="flex items-center space-x-2">
+                <span class="w-8 h-8 rounded-full bg-emerald-500 text-slate-950 font-extrabold flex items-center justify-center text-sm">
+                  ${res.overallScore || 90}
+                </span>
+                <span class="font-bold text-sm text-emerald-400">Fluency & Naturalness Score</span>
+              </div>
+              <span class="text-xs text-slate-400">Gemini Cultural Coaching</span>
+            </div>
+
+            <p class="text-slate-200 text-sm leading-relaxed">${res.feedbackSummary}</p>
+
+            <!-- Particle Notes -->
+            <div class="bg-slate-800/80 p-3 rounded-lg border border-slate-700 space-y-1">
+              <div class="text-xs font-bold text-amber-400 uppercase tracking-wide">
+                <i class="fa-solid fa-magnifying-glass mr-1"></i> Particle Precision Analysis
+              </div>
+              <ul class="text-xs text-slate-300 list-disc pl-4 space-y-1">
+                ${(res.particleNotes || ["Good attempt! Ensure you match verb transitive requirements with 을/를."]).map(n => `<li>${n}</li>`).join('')}
+              </ul>
+            </div>
+
+            <!-- Phrasing Alternatives -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+              <div class="bg-blue-950/40 p-3 rounded-xl border border-blue-700/50 space-y-1">
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] font-bold text-blue-300 uppercase">Natural Casual (해요체)</span>
+                  <button onclick="app.speakKorean('${res.naturalConversational.replace(/'/g, "\\'")}')" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-volume-high text-xs"></i>
+                  </button>
+                </div>
+                <p class="text-sm font-semibold text-white">${res.naturalConversational}</p>
+              </div>
+
+              <div class="bg-indigo-950/40 p-3 rounded-xl border border-indigo-700/50 space-y-1">
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] font-bold text-indigo-300 uppercase">Business / Formal (하십시오)</span>
+                  <button onclick="app.speakKorean('${res.businessPolite.replace(/'/g, "\\'")}')" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-volume-high text-xs"></i>
+                  </button>
+                </div>
+                <p class="text-sm font-semibold text-white">${res.businessPolite}</p>
+              </div>
+            </div>
+
+            <div class="text-xs text-slate-400 border-t border-slate-800 pt-2">
+              <i class="fa-solid fa-circle-check text-emerald-400 mr-1"></i> ${res.explanation || 'Keep practicing connecting clauses (~(으)려면, ~(으)니까) into smooth sentences.'}
+            </div>
+          </div>
+        `;
+      },
+
+      renderFallbackEvaluation(userText) {
+        this.renderEvaluationResults({
+          overallScore: 88,
+          feedbackSummary: "Great initiative! Your message gets the core meaning across clearly. To sound more native in Seoul, connect the clauses with '~는데' to provide background context softly.",
+          particleNotes: [
+            "Remember: headcount with people uses '~명으로' when specifying a reservation target.",
+            "Use '에서' for the location where the dinner is happening, but '에' for the arrival time."
+          ],
+          naturalConversational: "목요일 저녁 6시 반에 6명으로 룸 예약 좀 부탁드릴게요. 일행 중에 갑각류 알레르기가 있어서 신경 좀 써주시면 감사하겠습니다.",
+          businessPolite: "안녕하십니까, 이번 주 목요일 18시 30분에 6인 룸으로 예약 가능하십니까? 참석자 중 갑각류 알레르기가 있는 분이 계시니 참고 부탁드립니다.",
+          explanation: "In contemporary Seoul etiquette, using '부탁드릴게요' or '~해주시면 감사하겠습니다' softens requests far better than direct imperative endings."
+        });
+      },
+
+      speakKorean(text, onEnded = null) {
+        if (!('speechSynthesis' in window)) {
+          this.showToast("Speech synthesis not supported in this browser.");
+          if (onEnded) onEnded();
+          return;
+        }
+
+        window.speechSynthesis.cancel();
+        const cleanText = text.replace(/\[.*?\]/g, '').trim();
+        const utterance = new SpeechSynthesisUtterance(cleanText);
+        utterance.lang = 'ko-KR';
+        utterance.rate = 0.92;
+
+        const voices = window.speechSynthesis.getVoices();
+        const koVoice = voices.find(v => v.lang.startsWith('ko'));
+        if (koVoice) utterance.voice = koVoice;
+
+        if (onEnded) {
+          utterance.onend = onEnded;
+          utterance.onerror = onEnded;
+        }
+
+        window.speechSynthesis.speak(utterance);
+      },
+
+      toggleProfileModal() {
+        const m = document.getElementById('profileModal');
+        m.classList.toggle('hidden');
+      },
+
+      showToast(msg) {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = "bg-slate-900 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-lg border border-slate-800 transition transform duration-300 translate-y-2 opacity-0 pointer-events-auto flex items-center space-x-2";
+        toast.innerHTML = `<i class="fa-solid fa-circle-info text-dancheong-gold"></i> <span>${msg}</span>`;
+        container.appendChild(toast);
+
+        setTimeout(() => {
+          toast.classList.remove('translate-y-2', 'opacity-0');
+        }, 10);
+
+        setTimeout(() => {
+          toast.classList.add('opacity-0');
+          setTimeout(() => toast.remove(), 300);
+        }, 3000);
+      },
+
+      loadFallbackCurated(topic) {
+        const topicId = topic?.id || 'restaurant';
+
+        const topicBanks = {
+          sports_coaching: {
+            vocab: [
+              { korean: "손발이 맞다", english: "to work seamlessly together in sync", type: "expression", nuance: "Essential for team dynamics: '팀원들과 손발이 척척 맞다'", sampleKorean: "연습을 많이 해서 선수들끼리 손발이 아주 잘 맞아요.", sampleEnglish: "Because we practiced a lot, the players are very well-coordinated." },
+              { korean: "기선을 제압하다", english: "to seize the early initiative", type: "expression", nuance: "Pairs with object particle 을/를 (기선을 제압하다)", sampleKorean: "초반부터 강하게 압박해서 기선을 제압해야 합니다.", sampleEnglish: "We need to press aggressively from the start to seize the initiative." },
+              { korean: "격려하다", english: "to encourage / cheer on / motivate", type: "verb", nuance: "Target takes object particle 을/를 (선수들을 격려하다)", sampleKorean: "실수를 하더라도 기죽지 않게 계속 격려해 주세요.", sampleEnglish: "Even if they make a mistake, keep encouraging them so they don't lose heart.", tenses: { present: "격려해요", past: "격려했어요", honorific: "격려하십니다", futureIntent: "격려하려고 해요" } },
+              { korean: "수비하다", english: "to defend / play defense", type: "verb", nuance: "Contrast with 공격하다 (to attack/play offense)", sampleKorean: "상대 역습에 대비해서 빈 공간을 적극적으로 수비해야 합니다.", sampleEnglish: "We have to actively defend the open space against the counterattack.", tenses: { present: "수비해요", past: "수비했어요", honorific: "수비하십니다", futureIntent: "수비할 계획입니다" } },
+              { korean: "조율하다", english: "to pace / coordinate / balance game tempo", type: "verb", nuance: "Frequently used for 경기 템포를 조율하다 (setting tempo)", sampleKorean: "미드필더에서 경기 템포를 침착하게 조율하는 것이 핵심입니다.", sampleEnglish: "Calmly managing the tempo from the midfield is key.", tenses: { present: "조율해요", past: "조율했어요", honorific: "조율하십니다", futureIntent: "조율하고자 합니다" } },
+              { korean: "전술", english: "tactics / game strategy", type: "noun", nuance: "Collocates with '전술을 세우다' (devise tactics)", sampleKorean: "후반전에는 수비 위주의 전술로 전환하겠습니다.", sampleEnglish: "In the second half, we will switch to a defense-oriented tactic." },
+              { korean: "체력", english: "physical stamina / endurance", type: "noun", nuance: "Pairs with '체력을 기르다' (build stamina)", sampleKorean: "후반 30분이 지나면 체력 싸움이 됩니다.", sampleEnglish: "Once past the 30th minute of the second half, it becomes a battle of stamina." },
+              { korean: "포지션", english: "position / assigned role", type: "noun", nuance: "Position assignment uses ~(으)로: '수비수[로] 뛰다'", sampleKorean: "각자 맡은 포지션에서 끝까지 집중력을 유지하세요.", sampleEnglish: "Maintain your focus in each of your assigned positions until the end." },
+              { korean: "부상", english: "injury", type: "noun", nuance: "Pairs with '부상을 당하다' (suffer an injury)", sampleKorean: "경기 전 스트레칭은 부상 방지를 위해 필수적입니다.", sampleEnglish: "Stretching before the match is essential to prevent injury." },
+              { korean: "경기력", english: "performance / play quality", type: "noun", nuance: "Pairs with '경기력을 끌어올리다' (boost play performance)", sampleKorean: "오늘 팀 전체의 경기력이 아주 훌륭했습니다.", sampleEnglish: "Today the entire team's performance was truly excellent." },
+              { korean: "끈기 있게", english: "tenaciously / with endurance", type: "adverb_adjective", nuance: "Common sideline coaching instruction", sampleKorean: "점수 차가 나더라도 끝까지 끈기 있게 경기에 임합시다.", sampleEnglish: "Even if there's a score gap, let's play tenaciously until the end." },
+              { korean: "침착하게", english: "calmly / with composure", type: "adverb_adjective", nuance: "Adverbial modifier: '당황하지 말고 침착하게!'", sampleKorean: "골문 앞에서는 당황하지 말고 침착하게 슈팅하세요.", sampleEnglish: "In front of the goal, don't panic and shoot calmly." },
+              { korean: "치열하다", english: "to be fierce / intense / highly competitive", type: "adverb_adjective", nuance: "Describes high stakes: '경기가 치열하다'", sampleKorean: "결승전이라 그런지 양 팀의 공방전이 매우 치열하네요.", sampleEnglish: "Perhaps because it's the final, the battle between both teams is very intense." }
+            ],
+            patterns: [
+              {
+                id: 'sp1',
+                pattern: "A~(으)ㄹ수록 B (The more A, the more B)",
+                explanation: "Crucial for coaching cause-and-effect in drills and conditioning.",
+                particleTip: "Verbs ending in consonants take 을수록; vowels take ㄹ수록.",
+                variations: [
+                  { korean: "경기가 치열해질수록 침착하게 소통해야 합니다.", english: "The fiercer the match gets, the more calmly we must communicate." },
+                  { korean: "기본기를 반복해서 연습할수록 경기력이 안정됩니다.", english: "The more you practice fundamentals, the more stable your performance becomes." }
+                ]
+              },
+              {
+                id: 'sp2',
+                pattern: "A~(으)ㄴ 채로 B (Doing B while remaining in state A)",
+                explanation: "Used frequently in sports to correct posture and stances.",
+                particleTip: "Attach ~(으)ㄴ 채로 to the descriptive verb of bodily position.",
+                variations: [
+                  { korean: "무릎을 살짝 굽힌 채로 중심을 낮추세요.", english: "Lower your center of gravity while keeping your knees slightly bent." },
+                  { korean: "시선을 공에 둔 채로 발을 끝까지 뻗어야 합니다.", english: "You must extend your foot through while keeping your eyes on the ball." }
+                ]
+              },
+              {
+                id: 'sp3',
+                pattern: "A~(으)려면 B해야 한다 (In order to achieve A, one must do B)",
+                explanation: "Direct instruction connecting athletic goals with execution.",
+                particleTip: "The prerequisite clause directly takes (으)려면 without intermediate markers.",
+                variations: [
+                  { korean: "역전승을 거두려면 전반보다 압박을 두 배로 높여야 해요.", english: "In order to win a comeback victory, we must double the pressing compared to the first half." },
+                  { korean: "부상을 방지하려면 운동 후 쿨다운을 소홀히 해선 안 됩니다.", english: "In order to prevent injuries, you must not neglect cooling down after training." }
+                ]
+              }
+            ]
+          },
+          business_meeting: {
+            vocab: [
+              { korean: "말씀 많이 들었습니다", english: "I've heard a great deal about you", type: "expression", nuance: "Standard polished business greeting replacing casual 말", sampleKorean: "김 이사님께 말씀 많이 들었습니다.", sampleEnglish: "I've heard so much about you from Director Kim." },
+              { korean: "손발을 맞추다", english: "to collaborate smoothly / align workflows", type: "expression", nuance: "Object particle 을/를 (손발을 맞추다)", sampleKorean: "이번 프로젝트를 통해 서로 손발을 맞춰 봅시다.", sampleEnglish: "Let's align our workflows through this project." },
+              { korean: "검토하다", english: "to review / examine thoroughly", type: "verb", nuance: "Replaces informal 보다 in professional dialogue", sampleKorean: "보내주신 기획서를 꼼꼼히 검토하겠습니다.", sampleEnglish: "I will thoroughly review the proposal you sent.", tenses: { present: "검토해요", past: "검토했습니다", honorific: "검토하십니다", futureIntent: "검토할 예정입니다" } },
+              { korean: "추진하다", english: "to push forward / spearhead an initiative", type: "verb", nuance: "High-level managerial verb for driving projects", sampleKorean: "하반기 신규 사업을 본격적으로 추진하고 있습니다.", sampleEnglish: "We are actively pushing forward new business for the second half.", tenses: { present: "추진해요", past: "추진했습니다", honorific: "추진하십니다", futureIntent: "추진하려고 합니다" } },
+              { korean: "조율하다", english: "to mediate / coordinate conflicting opinions", type: "verb", nuance: "Key verb for meetings: 일정을 조율하다, 의견을 조율하다", sampleKorean: "양측의 의견 차이를 최대한 조율해 보겠습니다.", sampleEnglish: "I will try to coordinate the differences of opinion between both sides.", tenses: { present: "조율해요", past: "조율했습니다", honorific: "조율하십니다", futureIntent: "조율해 보겠습니다" } },
+              { korean: "안건", english: "agenda item / proposal issue", type: "noun", nuance: "Pairs with '안건을 상정하다' (bring up an agenda item)", sampleKorean: "오늘 회의의 주요 안건은 예산 편성입니다.", sampleEnglish: "The main agenda item of today's meeting is budget allocation." },
+              { korean: "일정", english: "schedule / itinerary", type: "noun", nuance: "Pairs with '일정을 조율하다' (adjust schedules)", sampleKorean: "편하신 미팅 일정을 이메일로 회신 부탁드립니다.", sampleEnglish: "Please reply via email with a meeting schedule that works comfortably for you." },
+              { korean: "성과", english: "tangible outcome / business achievement", type: "noun", nuance: "Pairs with '성과를 내다' (produce results)", sampleKorean: "지난 분기에 기대 이상의 성과를 거두었습니다.", sampleEnglish: "Last quarter we achieved outcomes exceeding expectations." },
+              { korean: "우려", english: "concern / apprehension", type: "noun", nuance: "Pairs with '우려를 표하다' (express concern)", sampleKorean: "일정 지연에 대한 고객사의 우려가 있는 상황입니다.", sampleEnglish: "There are customer concerns regarding schedule delays." },
+              { korean: "방향성", english: "strategic direction / guiding vision", type: "noun", nuance: "Pairs with '방향성을 잡다' (set direction)", sampleKorean: "우선 큰 틀에서의 사업 방향성부터 합의합시다.", sampleEnglish: "Let's first agree on the broad business direction." },
+              { korean: "원활하게", english: "smoothly / without friction", type: "adverb_adjective", nuance: "Business adverb: '원활하게 소통하다', '원활하게 진행되다'", sampleKorean: "업무가 원활하게 진행될 수 있도록 지원하겠습니다.", sampleEnglish: "I will provide support so that the work proceeds smoothly." },
+              { korean: "부담스럽다", english: "burdensome / putting too much pressure", type: "adverb_adjective", nuance: "Polite indirect refusal: '조금 부담스럽습니다'", sampleKorean: "단축된 일정은 개발팀 입장에서 다소 부담스럽습니다.", sampleEnglish: "The shortened schedule feels somewhat burdensome from the development team's standpoint." },
+              { korean: "철저히", english: "thoroughly / rigorously", type: "adverb_adjective", nuance: "Modifier for risk analysis: '철저히 대비하다'", sampleKorean: "출시 전 보안 테스트를 철저히 진행해야 합니다.", sampleEnglish: "Security testing must be conducted rigorously prior to launch." }
+            ],
+            patterns: [
+              {
+                id: 'bp1',
+                pattern: "A~(으)ㅁ에 따라 B (As a consequence of A / In line with A)",
+                explanation: "High-level business syntax connecting corporate conditions to decisions.",
+                particleTip: "Nominalizes the clause with (으)ㅁ before attaching 에 따라.",
+                variations: [
+                  { korean: "시장 상황이 급변함에 따라 전략을 수정하기로 했습니다.", english: "In line with rapid market changes, we decided to modify our strategy." },
+                  { korean: "신제품 수요가 증가함에 따라 생산량을 늘렸습니다.", english: "As demand for the new product increased, we expanded production volume." }
+                ]
+              },
+              {
+                id: 'bp2',
+                pattern: "A~(으)ㄴ/는 반면에 B (While A, on the other hand B)",
+                explanation: "Presents balanced pros and cons during business discussions.",
+                particleTip: "Inflects as ㄴ 반면에 for adjectives and 는 반면에 for verbs.",
+                variations: [
+                  { korean: "초기 투자 비용이 큰 반면에 장기적 수익성은 높습니다.", english: "While initial investment costs are large, on the other hand long-term profitability is high." },
+                  { korean: "개발 속도가 빠른 반면에 안정성은 조금 더 검증해야 합니다.", english: "While development speed is fast, on the other hand stability requires further verification." }
+                ]
+              },
+              {
+                id: 'bp3',
+                pattern: "A~(으)ㄹ 뿐만 아니라 B (Not only A, but also B)",
+                explanation: "Stitches multiple business value propositions into one strong sentence.",
+                particleTip: "Attach directly to the verb stem without comma separation.",
+                variations: [
+                  { korean: "비용을 절감할 수 있을 뿐만 아니라 업무 효율도 극대화됩니다.", english: "Not only can we reduce costs, but work efficiency is also maximized." },
+                  { korean: "국내 시장뿐만 아니라 해외 진출도 함께 염두에 두고 있습니다.", english: "We have both domestic expansion and overseas market entry in mind." }
+                ]
+              }
+            ]
+          }
+        };
+
+        const selected = topicBanks[topicId] || (topicId.includes('sport') ? topicBanks.sports_coaching : null);
+
+        if (selected) {
+          this.curatedVocab = JSON.parse(JSON.stringify(selected.vocab));
+          this.curatedPatterns = JSON.parse(JSON.stringify(selected.patterns));
+          return;
+        }
+
+        // Standard Dining Out Fallback
+        this.curatedVocab = [
+          { korean: "입맛에 맞다", english: "to suit one's palate / taste good", type: "expression", nuance: "Use particle ~에: '음식이 입맛에 맞으세요?'", sampleKorean: "다행히 부모님 입맛에 잘 맞았어요.", sampleEnglish: "Fortunately, it suited my parents' taste well." },
+          { korean: "말씀 많이 들었습니다", english: "I've heard a lot about you", type: "expression", nuance: "Polite honorific form replacing '말'", sampleKorean: "김 부장님께 말씀 많이 들었습니다.", sampleEnglish: "I have heard so much about you from Director Kim." },
+          { korean: "예약하다", english: "to reserve / book", type: "verb", nuance: "Headcount takes ~(으)로: '4명으로 예약하다'", sampleKorean: "창가 자리로 예약할 수 있을까요?", sampleEnglish: "Can I reserve a window seat?", tenses: { present: "예약해요", past: "예약했어요", honorific: "예약하십니다", futureIntent: "예약하려고 해요" } },
+          { korean: "추천하다", english: "to recommend", type: "verb", nuance: "Indirect recipient takes ~에게 or ~한테", sampleKorean: "손님들이 가장 즐겨 찾는 메뉴를 추천해 주세요.", sampleEnglish: "Please recommend the menu guests order most often.", tenses: { present: "추천해요", past: "추천했어요", honorific: "추천하십니다", futureIntent: "추천해 드릴게요" } },
+          { korean: "검토하다", english: "to examine / look over / review", type: "verb", nuance: "Essential in business Korean instead of just '보다'", sampleKorean: "보내주신 자료를 면밀히 검토하고 연락드리겠습니다.", sampleEnglish: "I will review the materials you sent thoroughly and contact you.", tenses: { present: "검토해요", past: "검토했습니다", honorific: "검토하십니다", futureIntent: "검토할 예정입니다" } },
+          { korean: "분위기", english: "atmosphere / vibe / ambiance", type: "noun", nuance: "Pairs frequently with '분위기가 좋다'", sampleKorean: "이 식당은 조용해서 비즈니스 미팅하기에 분위기가 좋아요.", sampleEnglish: "This restaurant is quiet so the atmosphere is great for business meetings." },
+          { korean: "일정", english: "schedule / itinerary", type: "noun", nuance: "Pairs with '일정을 맞추다' (align schedules)", sampleKorean: "다음 주 중으로 편하신 일정을 알려주세요.", sampleEnglish: "Please let me know a schedule that works comfortably for you next week." },
+          { korean: "모임", english: "gathering / meeting / get-together", type: "noun", nuance: "Pairs with ~에 참석하다 (attend a gathering)", sampleKorean: "동호회 모임이 있어서 이번 주말에는 바빠요.", sampleEnglish: "I have a club get-together so I am busy this weekend." },
+          { korean: "룸", english: "private dining room", type: "noun", nuance: "Pairs with '룸으로 잡다' (secure a private room)", sampleKorean: "조용한 대화를 위해 룸으로 배정해 주실 수 있나요?", sampleEnglish: "Could you assign us a private room for a quiet conversation?" },
+          { korean: "알레르기", english: "allergy", type: "noun", nuance: "Subject particle '가/이' with '있다': '땅콩 알레르기가 있어요'", sampleKorean: "갑각류 알레르기가 있어서 새우는 빼주세요.", sampleEnglish: "I have a shellfish allergy, so please leave out the shrimp." },
+          { korean: "넉넉하게", english: "generously / sufficiently", type: "adverb_adjective", nuance: "Adverbial form of 넉넉하다; sounds very natural when ordering", sampleKorean: "시간을 넉넉하게 잡고 이동합시다.", sampleEnglish: "Let's leave plenty of time to travel." },
+          { korean: "부담스럽다", english: "burdensome / uncomfortable", type: "adverb_adjective", nuance: "Crucial cultural adjective when declining politely", sampleKorean: "선물이 너무 비싸서 조금 부담스러워요.", sampleEnglish: "The gift is too expensive so it feels a bit burdensome." },
+          { korean: "솔직히", english: "frankly / honestly speaking", type: "adverb_adjective", nuance: "Softens opinions: '솔직히 말씀드리면...'", sampleKorean: "솔직히 말씀드리면 그 제안은 진행하기 어려울 것 같습니다.", sampleEnglish: "To be frank with you, that proposal seems difficult to proceed with." }
+        ];
+
+        this.curatedPatterns = [
+          {
+            id: 'p1',
+            pattern: "A~(으)ㄴ/는 편이다 (Tend to / Rather be on the side of A)",
+            explanation: "Softens assertions in conversation instead of making blunt statements.",
+            particleTip: "Verbs take ~는 편이다; Adjectives take ~(으)ㄴ 편이다.",
+            variations: [
+              { korean: "저는 매운 음식을 꽤 잘 먹는 편이에요.", english: "I tend to eat spicy food quite well." },
+              { korean: "그 식당은 주말에 손님이 많은 편이에요.", english: "That restaurant tends to have a lot of customers on weekends." }
+            ]
+          },
+          {
+            id: 'p2',
+            pattern: "A~(으)려면 B해야 하다 (In order to achieve A, one must do B)",
+            explanation: "Combines goal and prerequisite smoothly into one structured sentence.",
+            particleTip: "The condition clause ends in (으)려면 without need for additional particles.",
+            variations: [
+              { korean: "좋은 자리를 예약하려면 적어도 3일 전에는 전화해야 해요.", english: "In order to reserve a good seat, you must call at least 3 days in advance." },
+              { korean: "비즈니스를 원활하게 하려면 호칭에 신경 써야 합니다.", english: "In order to conduct business smoothly, one must pay attention to titles." }
+            ]
+          },
+          {
+            id: 'p3',
+            pattern: "A~(으)ㄹ 겸해서 B (Doing B also with the purpose of doing A)",
+            explanation: "Expresses dual intentions naturally like a native speaker.",
+            particleTip: "Attach ~(으)ㄹ directly to the verb stem without a space before 겸해서.",
+            variations: [
+              { korean: "바람도 쐴 겸해서 한강에 산책 다녀왔어요.", english: "I went for a walk at the Han River, also to get some fresh air." },
+              { korean: "인사도 드릴 겸해서 찾아뵈었습니다.", english: "I came by to visit, also to pay my respects." }
+            ]
+          }
+        ];
+      },
+
+      buildFallbackLesson() {
+        const isSports = this.currentTopic?.id === 'sports_coaching' || this.currentTopic?.title?.toLowerCase().includes('sport');
+        const isBusiness = this.currentTopic?.id === 'business_meeting' || this.currentTopic?.title?.toLowerCase().includes('business');
+
+        if (isSports) {
+          this.quizData = [
+            {
+              type: "Particle Cloze",
+              korean: "후반전에는 수비수[ ? ] 뛰어 주시기 바랍니다.",
+              english: "In the second half, please play as a defender.",
+              options: ["로", "에", "을", "의"],
+              answerIndex: 0,
+              explanation: "When assigning roles, capacities, or designated positions, use the marker ~(으)로 (수비수로)."
+            },
+            {
+              type: "Particle Cloze",
+              korean: "선수들끼리 손발[ ? ] 아주 잘 맞아서 패스가 원활해요.",
+              english: "The players are in sync with each other, so the passes are smooth.",
+              options: ["이", "을", "에", "으로"],
+              answerIndex: 0,
+              explanation: "The idiomatic expression uses subject particle 이/가: '손발이 맞다' (to be in sync)."
+            },
+            {
+              type: "Conversational Meaning",
+              korean: "'기선을 제압하다'의 가장 알맞은 의미는?",
+              english: "What is the most accurate meaning of '기선을 제압하다'?",
+              options: ["경기 초반에 주도권을 잡다", "체력을 비축하다", "선수들을 쉬게 하다", "반칙을 피하다"],
+              answerIndex: 0,
+              explanation: "'기선을 제압하다' means taking control or seizing momentum right from the outset of the match."
+            },
+            {
+              type: "Particle Cloze",
+              korean: "체력[ ? ] 떨어질수록 더욱 집중해야 합니다.",
+              english: "The more stamina drops, the more you must concentrate.",
+              options: ["이", "을", "에서", "에게"],
+              answerIndex: 0,
+              explanation: "With intransitive verbs like 떨어지다 (to drop/decline), the subject particle 이/가 is natural (체력이 떨어지다)."
+            }
+          ];
+
+          this.patternExercises = [
+            {
+              simpleThought: "경기가 치열해요. (The match is fierce.)",
+              connector: "~(으)ㄹ수록 (The more... the more...)",
+              complexThought: "경기가 치열해질수록 팀원들끼리 침착하게 소통해야 합니다.",
+              english: "The fiercer the match becomes, the more calmly team members must communicate with each other.",
+              particleFocus: "Notice using '들끼리' (among ourselves) to emphasize intra-team cohesion."
+            },
+            {
+              simpleThought: "중심을 낮추세요. (Lower your center of gravity.)",
+              connector: "~(으)ㄴ 채로 (While maintaining the state of)",
+              complexThought: "무릎을 살짝 굽힌 채로 중심을 낮추고 상대 공격수를 마크하세요.",
+              english: "Lower your center of gravity while keeping your knees slightly bent, and mark the opponent's forward.",
+              particleFocus: "Use '(으)ㄴ 채로' to freeze the physical posture during the active drill."
+            },
+            {
+              simpleThought: "승리하고 싶어요. (We want to win.)",
+              connector: "~(으)려면 (In order to achieve)",
+              complexThought: "오늘 경기에서 승리하려면 후반전에 압박 타이밍을 앞당겨야 합니다.",
+              english: "In order to win today's match, we must bring forward the timing of our pressing in the second half.",
+              particleFocus: "'에서' designates the event/location where dynamic action occurs (오늘 경기에서)."
+            }
+          ];
+
+          this.dialogueLines = [
+            { speaker: "Coach (You)", korean: "자, 전반전 수고 많았다. 상대 수비 압박이 생각보다 거세네.", english: "Alright, great effort in the first half. The opponent's defensive pressure is fiercer than expected.", tone: "해요체" },
+            { speaker: "Captain (Min-woo)", korean: "네 코치님, 미드필더에서 볼 배급할 때 압박이 바로 들어와서 여유가 없습니다.", english: "Yes Coach, when distributing the ball in the midfield, pressure comes immediately so there's no breathing room.", tone: "하십시오체" },
+            { speaker: "Coach (You)", korean: "그럴수록 당황하지 말고 한 박자 빠르게 원터치로 패스를 돌려야 해. 손발을 맞춰야 공간이 난다.", english: "All the more reason not to panic and circulate passes one beat faster with one touch. When you're in sync, space opens up.", tone: "해요체" },
+            { speaker: "Captain (Min-woo)", korean: "알겠습니다. 후반전에는 양쪽 윙포워드 침투 타이밍에 맞춰서 길게 찔러주겠습니다.", english: "Understood. In the second half, I will thread long balls matching the through-run timing of both wing forwards.", tone: "하십시오체" },
+            { speaker: "Coach (You)", korean: "좋아! 그리고 후반 20분 지나면 체력 싸움이니까, 끝까지 끈기 있게 뛰어주자.", english: "Good! And past the 20th minute of the second half it's a stamina battle, so let's run tenaciously till the end.", tone: "해요체" },
+            { speaker: "Captain (Min-woo)", korean: "네, 반드시 기선 제압해서 승리하고 돌아오겠습니다!", english: "Yes sir! We will definitely seize the initiative and return with a victory!", tone: "하십시오체" }
+          ];
+
+          this.currentSituationPrompt = "You are coaching your soccer or basketball team at halftime. The score is tied 1-1, and the team seems fatigued. Tell the team: (1) praise their first-half defensive effort, (2) instruct them to pass more calmly rather than rushing, and (3) remind them that stamina in the final 15 minutes will decide the game.";
+          return;
+        }
+
+        if (isBusiness) {
+          this.quizData = [
+            {
+              type: "Particle Cloze",
+              korean: "다음 주 회의 일정[ ? ] 조율하고자 연락드렸습니다.",
+              english: "I am reaching out in order to coordinate next week's meeting schedule.",
+              options: ["을", "에", "으로", "과"],
+              answerIndex: 0,
+              explanation: "The transitive verb '조율하다' takes the direct object particle 을/를 (일정을 조율하다)."
+            },
+            {
+              type: "Conversational Meaning",
+              korean: "비즈니스 거절 표현으로 가장 완곡하고 자연스러운 것은?",
+              english: "Which expression is the most natural and polite business declination?",
+              options: ["이번 건은 진행이 다소 부담스러울 것 같습니다.", "절대 안 됩니다.", "그건 불가능합니다.", "다음에 하세요."],
+              answerIndex: 0,
+              explanation: "'다소 부담스러울 것 같습니다' is the standard polite formula in Seoul business culture to signal an inability to proceed without causing offense."
+            },
+            {
+              type: "Particle Cloze",
+              korean: "시장 상황이 변함[ ? ] 따라 신규 전략이 필요합니다.",
+              english: "In line with changing market conditions, a new strategy is needed.",
+              options: ["에", "의", "을", "으로"],
+              answerIndex: 0,
+              explanation: "The formal connector pattern is '~(으)ㅁ에 따라' (in line with / following)."
+            },
+            {
+              type: "Particle Cloze",
+              korean: "기획안을 면밀히 검토한 후[ ? ] 피드백을 드리겠습니다.",
+              english: "I will provide feedback after reviewing the draft thoroughly.",
+              options: ["에", "에서", "을", "으로"],
+              answerIndex: 0,
+              explanation: "Time sequencing with '후' takes temporal particle 에 ('후에' - afterward)."
+            }
+          ];
+
+          this.patternExercises = [
+            {
+              simpleThought: "투자 비용이 큽니다. (Investment costs are large.)",
+              connector: "~(으)ㄴ 반면에 (While A, on the other hand B)",
+              complexThought: "초기 투자 비용이 다소 큰 반면에, 장기적인 업무 효율성과 수익성은 매우 높습니다.",
+              english: "While initial investment costs are somewhat high, on the other hand long-term efficiency and profitability are very high.",
+              particleFocus: "Use '은/는' for topic contrast between cost and profitability."
+            },
+            {
+              simpleThought: "비용을 절감합니다. (We reduce costs.)",
+              connector: "~(으)ㄹ 뿐만 아니라 (Not only A, but also B)",
+              complexThought: "이번 자동화 솔루션은 인건비를 절감할 뿐만 아니라 휴먼 에러를 방지할 수 있습니다.",
+              english: "This automation solution not only cuts labor costs, but can also prevent human errors.",
+              particleFocus: "Connects compound benefits smoothly without pausing."
+            },
+            {
+              simpleThought: "합의점을 찾고 싶습니다. (We want to find common ground.)",
+              connector: "~(으)려면 (In order to)",
+              complexThought: "양사 모두 만족스러운 합의점을 도출하려면 납기 일정을 상호 조율해야 합니다.",
+              english: "In order to derive a consensus satisfactory to both companies, we must mutually coordinate delivery schedules.",
+              particleFocus: "'도출하다' (derive) takes direct object particle 을/를."
+            }
+          ];
+
+          this.dialogueLines = [
+            { speaker: "Client (Director Kim)", korean: "박 팀장님, 보내주신 제안서는 잘 받았습니다. 말씀 많이 들었습니다.", english: "Team Leader Park, I received your proposal well. I've heard a great deal about you.", tone: "하십시오체" },
+            { speaker: "You (Learner)", korean: "감사합니다 김 이사님. 바쁘신 와중에 검토해 주셔서 감사드립니다.", english: "Thank you, Director Kim. Thank you for reviewing it amid your busy schedule.", tone: "해요체" },
+            { speaker: "Client (Director Kim)", korean: "전체적인 방향성은 좋은데, 일정과 단가 측면에서 저희로서는 다소 부담스러운 면이 있네요.", english: "The overall direction is good, but in terms of schedule and unit cost, there are aspects that are somewhat burdensome for us.", tone: "하십시오체" },
+            { speaker: "You (Learner)", korean: "네, 충분히 이해합니다. 세부 개발 일정을 단계별로 조율하면 예산 부담을 덜어드릴 수 있을 것 같습니다.", english: "Yes, I completely understand. If we coordinate the detailed development schedule in phases, I believe we can relieve your budget burden.", tone: "해요체" },
+            { speaker: "Client (Director Kim)", korean: "그렇다면 수정된 일정 계획안을 다음 주 화요일까지 공유해 주실 수 있습니까?", english: "If so, could you share the revised schedule proposal by next Tuesday?", tone: "하십시오체" },
+            { speaker: "You (Learner)", korean: "네, 팀원들과 면밀히 검토하여 화요일 오전 중으로 회신드리겠습니다.", english: "Yes, we will review it thoroughly with team members and reply by Tuesday morning.", tone: "하십시오체" }
+          ];
+
+          this.currentSituationPrompt = "You are in a partnership meeting with a Korean corporate client. Address Director Lee politely, state that you have reviewed their feedback, politely suggest extending the launch timeline by 2 weeks to ensure product stability, and ask for their understanding.";
+          return;
+        }
+
+        // Standard Dining Out Fallback
+        this.quizData = [
+          {
+            type: "Particle Cloze",
+            korean: "저희가 4명[ ? ] 가려고 하는데 조용한 자리 있나요?",
+            english: "There are four of us going; do you have a quiet table?",
+            options: ["으로", "에", "을", "은"],
+            answerIndex: 0,
+            explanation: "When specifying headcount, quantity status, or configuration, the particle ~(으)로 is natural (4명으로)."
+          },
+          {
+            type: "Particle Cloze",
+            korean: "식당[ ? ] 도착하자마자 주문부터 했습니다.",
+            english: "As soon as I arrived at the restaurant, I placed an order right away.",
+            options: ["에", "에서", "을", "으로"],
+            answerIndex: 0,
+            explanation: "With destination arrival verbs like '도착하다', the target location particle '에' is used. '에서' is for dynamic actions taking place inside the location."
+          },
+          {
+            type: "Conversational Meaning",
+            korean: "상대방의 의견을 거절할 때 가장 정중한 표현은?",
+            english: "Which expression is most polite and culturally natural when declining a request?",
+            options: ["절대 안 돼요.", "조금 부담스럽고 어려울 것 같습니다.", "싫습니다.", "하지 마세요."],
+            answerIndex: 1,
+            explanation: "'조금 부담스럽고 어려울 것 같습니다' is the standard polite business euphemism used in Seoul to soften a negative answer."
+          },
+          {
+            type: "Particle Cloze",
+            korean: "저는 매운 음식[ ? ] 잘 먹는 편이에요.",
+            english: "I tend to eat spicy food quite well.",
+            options: ["을", "은", "이", "과"],
+            answerIndex: 0,
+            explanation: "Food being consumed with the transitive verb '먹다' takes the direct object particle 을/를."
+          }
+        ];
+
+        this.patternExercises = [
+          {
+            simpleThought: "식당에 전화해요. (I call the restaurant.)",
+            connector: "~(으)려고 (In order to / with intent to)",
+            complexThought: "이번 주 금요일에 가족들과 저녁 식사를 하려고 식당에 미리 전화했어요.",
+            english: "I called the restaurant in advance in order to have dinner with my family this Friday.",
+            particleFocus: "Notice using '(으)로' for '가족들과' (with) and '에' for specific time."
+          },
+          {
+            simpleThought: "음식이 조금 매워요. (The food is a bit spicy.)",
+            connector: "~(으)ㄴ 반면에 (On the other hand / while)",
+            complexThought: "음식이 조금 매운 반면에 감칠맛이 있어서 계속 먹게 돼요.",
+            english: "While the food is a bit spicy, on the other hand it has deep umami so I keep eating it.",
+            particleFocus: "Notice using '이/가' for '감칠맛이' to highlight the inherent quality of the dish."
+          },
+          {
+            simpleThought: "새로운 프로젝트를 시작해요. (We start a new project.)",
+            connector: "~(으)ㄹ 겸해서 (Also with the purpose of)",
+            complexThought: "팀원들과 친해질 겸해서 프로젝트 킥오프 저녁 모임을 가졌습니다.",
+            english: "We had a project kickoff dinner gathering, also to get closer with team members.",
+            particleFocus: "'과/와' marks accompaniment (팀원들과)."
+          }
+        ];
+
+        this.dialogueLines = [
+          { speaker: "Min-woo (Staff)", korean: "어서 오십시오, 손님. 예약하고 오셨습니까?", english: "Welcome, sir. Did you make a reservation before coming?", tone: "하십시오체" },
+          { speaker: "You (Learner)", korean: "네, 7시에 박민준으로 4명 예약했는데요.", english: "Yes, I reserved for 4 people at 7 PM under the name Park Min-jun.", tone: "해요체" },
+          { speaker: "Min-woo (Staff)", korean: "아, 박민준 고객님 맞으시군요. 안쪽 조용한 룸으로 안내해 드리겠습니다.", english: "Ah, yes, Mr. Park Min-jun! I will guide you to a quiet room inside.", tone: "하십시오체" },
+          { speaker: "You (Learner)", korean: "감사합니다. 혹시 일행 중에 땅콩 알레르기가 있는 사람이 있어서 그런데, 주문할 때 말씀드리면 될까요?", english: "Thank you. Someone in our party has a peanut allergy; may we mention that when ordering?", tone: "해요체" },
+          { speaker: "Min-woo (Staff)", korean: "네, 그럼요. 주방에 미리 전달해서 신경 쓰도록 하겠습니다. 편하게 메뉴 보십시오.", english: "Yes, of course. I will notify the kitchen beforehand to take extra care. Please browse the menu comfortably.", tone: "하십시오체" },
+          { speaker: "You (Learner)", korean: "신경 써주셔서 감사합니다. 추천 메뉴 위주로 먼저 검토해 볼게요.", english: "Thank you for taking care of it. We will look through the recommended items first.", tone: "해요체" }
+        ];
+
+        this.currentSituationPrompt = "You are taking out a prospective business partner in Gangnam. Recommend a quiet Korean beef restaurant (한우 전문점), mention that the atmosphere is calm and comfortable for conversation, and ask if they have any dietary restrictions.";
+      }
+    };
+
+    window.onload = function() {
+      app.init();
+    };
+  </script>
+</body>
+</html>
